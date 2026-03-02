@@ -1,0 +1,26 @@
+package com.stream.actor
+import akka.actor.typed.Behavior
+import akka.actor.typed.scaladsl.Behaviors
+import com.stream.service.{Deliver, DeliveryCommand, FindPartner, OrderConfirmed, PartnerAssigned}
+
+object Delivery {
+  def apply() : Behavior[DeliveryCommand] = {
+    Behaviors.receive {
+      (context,message) => {
+        message match {
+          case Deliver(item,customerRef) => {
+          context.log.info(s"Delivering item $item")
+            customerRef ! OrderConfirmed(item)
+            Behaviors.same
+          }
+          case FindPartner(item ,orderId, restaurantRef) => {
+            Thread.sleep(10000)
+             restaurantRef ! PartnerAssigned(orderId)
+            Behaviors.same
+          }
+          case _ => Behaviors.same
+        }
+      }
+    }
+  }
+}
