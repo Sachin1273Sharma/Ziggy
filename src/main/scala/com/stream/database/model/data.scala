@@ -30,3 +30,9 @@ final case class RegisterRequest(email: String, password: String, name: Option[S
 final case class LoginRequest(email: String, password: String)
 final case class RefreshRequest(refreshToken: String)
 final case class MessageResponse(message: String)
+
+
+//Security
+sealed trait Security
+
+final case class LoginCred(userId : String, iat : Long) extends Security

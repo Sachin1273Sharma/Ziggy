@@ -2,6 +2,6 @@
 <project version="4">
   <component name="ScalaCompilerConfiguration">
     <option name="separateProdTestSources" value="true" />
-    <profile name="sbt 1" modules="stream,stream.main,stream.test" />
+    <profile name="sbt 1" modules="stream,stream.main,stream.test,ziggy,ziggy.main,ziggy.test" />
   </component>
 </project>

@@ -3,7 +3,7 @@ package com.stream.actor
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
 import com.stream.api.JsonSupport
-import com.stream.service.{DeliveryCommand, FindPartner, OrderAccepted, PartnerAssigned, PlaceOrder, PlaceOrderResponse, RestaurantCommand}
+import com.stream.service.{DeliveryCommand, DeliveryPartnerAssigned, FindPartner, OrderAccepted, PartnerAssigned, PlaceOrder, PlaceOrderResponse, RestaurantCommand}
 import redis.clients.jedis.Jedis
 
 object Restaurant extends JsonSupport {

@@ -8,6 +8,7 @@ import com.stream.controller.AuthController
 import com.stream.database.model.*
 
 
+
 class AuthRoutes(authController: AuthController) extends JsonSupport {
   val routes: Route =
     pathPrefix("auth") {
@@ -17,6 +18,10 @@ class AuthRoutes(authController: AuthController) extends JsonSupport {
             complete(StatusCodes.Continue, authController.registerCustomer(data))
           }
           }
+        },
+        path("login") {
+          authenticateOAuth2("UnAuthorized",)
+
         }
       )
     }
