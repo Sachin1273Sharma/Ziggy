@@ -1,15 +1,23 @@
 package com.stream.api
 
-import io.circe.generic.auto._
+import io.circe.generic.auto.*
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives.*
 import akka.http.scaladsl.server.Route
 import com.stream.controller.AuthController
 import com.stream.database.model.*
+import com.stream.service.DbService
+import com.stream.utils.security.ZiggySecurity
+
+import javax.inject.*
+import scala.concurrent.ExecutionContext
 
 
 
-class AuthRoutes(authController: AuthController) extends JsonSupport {
+@Singleton
+class AuthRoutes @Inject (val authController: AuthController,
+                          val db: DbService
+                          )(implicit ec : ExecutionContext) extends ZiggySecurity(db)(ec) with JsonSupport {
   val routes: Route =
     pathPrefix("auth") {
       concat(
@@ -20,8 +28,11 @@ class AuthRoutes(authController: AuthController) extends JsonSupport {
           }
         },
         path("login") {
-          authenticateOAuth2("UnAuthorized",)
-
+          authenticateOAuth2Async[Customer]("UnAuthorized",creds => validateLoginCredentials(creds)) {
+            customer : Customer => post {
+                complete(StatusCodes.OK,s"Welcome ${customer.name}")
+            }
+          }
         }
       )
     }

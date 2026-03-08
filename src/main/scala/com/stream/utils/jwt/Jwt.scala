@@ -1,6 +1,6 @@
 package com.stream.utils.jwt
 
-import com.stream.database.model.LoginCred
+import com.stream.database.model.JwtLoginCred
 
 import java.io.ObjectInputFilter.Config
 import java.nio.charset.StandardCharsets
@@ -27,7 +27,7 @@ class Jwt {
   def createToken(userId: String, secret: String): String = {
     val header = """{"alg":"HS256","typ":"JWT"}"""
 //    val payload = s"""{"userId":"$userId","iat":${System.currentTimeMillis() / 1000}}"""
-    val payload = LoginCred(userId,System.currentTimeMillis()/1000)
+    val payload = JwtLoginCred(userId,System.currentTimeMillis()/1000)
 
     val encodedHeader = base64Encode(header)
     val encodedPayload = base64Encode(payload.toString)
@@ -51,7 +51,7 @@ class Jwt {
           return Left(false)
         }
       }
-      val loginCreds = (decode[LoginCred] (parts(1)))
+      val loginCreds = (decode[JwtLoginCred] (parts(1)))
       loginCreds.map(cred => Right(cred))
       Left(false)
     }

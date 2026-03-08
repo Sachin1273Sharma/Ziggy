@@ -35,4 +35,6 @@ final case class MessageResponse(message: String)
 //Security
 sealed trait Security
 
-final case class LoginCred(userId : String, iat : Long) extends Security
+final case class JwtLoginCred(userId : String, iat : Long) extends Security
+
+

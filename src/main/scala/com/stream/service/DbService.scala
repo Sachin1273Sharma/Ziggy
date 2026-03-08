@@ -13,6 +13,10 @@ class DbService(val customerTable : CustomerTable) {
     customerTable.findByEmail(data.email)
   }
 
+  def findCustomerById(id : String) : Future[Option[Customer]] = {
+    customerTable.findById(id)
+  }
+
   def register(data: Customer): Future[UUID] = {
     customerTable.insert(data)
   }

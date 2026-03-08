@@ -22,6 +22,7 @@ lazy val root = (project in file("."))
       "org.flywaydb" % "flyway-core" % "10.22.0",
       "com.auth0" % "java-jwt" % "4.4.0",
       "org.mindrot" % "jbcrypt" % "0.4",
-     "com.typesafe" % "config" % "1.4.3"
+     "com.typesafe" % "config" % "1.4.3",
+     "com.google.inject" % "guice" % "5.1.0"
     )
   )

@@ -31,8 +31,8 @@ final class CustomerTable(db: Database)(implicit ec: ExecutionContext) {
   def insertAll(values: Seq[Customer]): Future[Option[Int]] =
     db.run(customers ++= values.map(value => value.copy(id = value.id.orElse(Some(UUID.randomUUID())))))
 
-  def findById(id: UUID): Future[Option[Customer]] =
-    db.run(customers.filter(_.id === id).result.headOption)
+  def findById(id: String): Future[Option[Customer]] =
+    db.run(customers.filter(_.id === UUID.fromString(id)).result.headOption)
 
   def findByEmail(email: String): Future[Option[Customer]] =
     db.run(customers.filter(_.email === Option(email)).result.headOption)
