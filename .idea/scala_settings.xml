@@ -3,7 +3,6 @@
   <component name="ScalaProjectSettings">
     <option name="compilerHighlightingDelay" value="700" />
     <option name="compilerHighlightingScala3" value="false" />
-    <option name="incrementalHighlighting" value="true" />
     <option name="migrateConfigurationsNotificationShown" value="true" />
   </component>
 </project>

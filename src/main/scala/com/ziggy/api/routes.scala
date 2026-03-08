@@ -1,0 +1,25 @@
+package com.ziggy.api
+
+import akka.http.scaladsl.server.Directives.*
+import akka.http.scaladsl.server.Route
+import com.ziggy.controller.OrderController
+import com.ziggy.service.OrderDetails
+import io.circe.generic.auto.*
+import com.ziggy.api.AuthRoutes
+
+import javax.inject.{Inject, Singleton}
+@Singleton
+class routes @Inject() (authRoutes : AuthRoutes) extends JsonSupport
+{
+  val routes: Route =
+    pathPrefix("api"){
+      concat(
+        path("health"){
+          complete("Service is up and running")
+        },
+        {
+          authRoutes.routes
+        }
+      )
+    }
+}
