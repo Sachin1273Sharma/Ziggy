@@ -1,0 +1,41 @@
+package com.ziggy.database.schema
+
+import com.ziggy.database.model.Customer
+
+import java.time.Instant
+import java.util.UUID
+import slick.jdbc.PostgresProfile.api.*
+
+class CustomerSchema(tag: Tag) extends Table[Customer](tag, "customers") {
+  def id = column[UUID]("id", O.PrimaryKey)
+  def name = column[Option[String]]("name")
+  def email = column[Option[String]]("email")
+  def passwordHash = column[Option[String]]("password_hash")
+  def phoneNumber = column[Option[String]]("phone_number")
+  def isProMember = column[Option[Boolean]]("is_pro_member")
+  def isActive = column[Option[Boolean]]("is_active")
+  def dateOfBirth = column[Option[String]]("date_of_birth")
+  def notes = column[Option[String]]("notes")
+  def createdAt = column[Option[Instant]]("created_at")
+  def updatedAt = column[Option[Instant]]("updated_at")
+
+  def emailIndex = index("idx_customers_email", email, unique = true)
+
+  def * = (
+    id.?,
+    name,
+    email,
+    passwordHash,
+    phoneNumber,
+    isProMember,
+    isActive,
+    dateOfBirth,
+    notes,
+    createdAt,
+    updatedAt
+  ).mapTo[Customer]
+}
+
+object CustomerSchema {
+  val customers = TableQuery[CustomerSchema]
+}

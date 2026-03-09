@@ -6,7 +6,7 @@ val circeVersion = "0.14.6"
 
 lazy val root = (project in file("."))
   .settings(
-    name := "stream",
+    name := "ziggy",
     libraryDependencies ++= Seq(
       "com.typesafe.akka" %% "akka-actor-typed" % "2.6.20",
       "ch.qos.logback" % "logback-classic" % "1.2.11",
@@ -21,6 +21,8 @@ lazy val root = (project in file("."))
       "com.typesafe.slick" %% "slick-hikaricp" % "3.5.1",
       "org.flywaydb" % "flyway-core" % "10.22.0",
       "com.auth0" % "java-jwt" % "4.4.0",
-      "org.mindrot" % "jbcrypt" % "0.4"
+      "org.mindrot" % "jbcrypt" % "0.4",
+     "com.typesafe" % "config" % "1.4.3",
+     "com.google.inject" % "guice" % "5.1.0"
     )
   )
