@@ -13,9 +13,8 @@ object Delivery {
             customerRef ! OrderConfirmed(item)
             Behaviors.same
           }
-          case FindPartner(item ,orderId, restaurantRef) => {
-            Thread.sleep(10000)
-            restaurantRef ! PartnerAssigned(orderId)
+          case FindPartner(orderId) => {
+
             Behaviors.same
           }
           case _ => Behaviors.same

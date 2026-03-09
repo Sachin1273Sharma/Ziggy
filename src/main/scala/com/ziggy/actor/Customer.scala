@@ -7,7 +7,7 @@ import com.ziggy.service.{CustomerCommand, OrderAccepted, PlaceOrder, Restaurant
 
 object Customer {
 
-  def apply(ref : ActorRef[RestaurantCommand]) : Behavior[CustomerCommand | OrderAccepted] = {
+  def apply() : Behavior[CustomerCommand | OrderAccepted] = {
 
     Behaviors.receive{
       (context,message) => {

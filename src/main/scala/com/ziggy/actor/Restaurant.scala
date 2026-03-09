@@ -3,36 +3,43 @@ package com.ziggy.actor
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
 import com.ziggy.api.JsonSupport
-import com.ziggy.service.{DeliveryCommand, DeliveryPartnerAssigned, FindPartner, OrderAccepted, PartnerAssigned, PlaceOrder, PlaceOrderResponse, RestaurantCommand}
+import com.ziggy.service.{DeliveryCommand, DeliveryPartnerAssigned, FindPartner, OrderAccepted, OrderCreationFailed, OrderService, PartnerAssigned, PlaceOrder, PlaceOrderResponse, RestaurantCommand}
+import com.ziggy.utils.Logger
 import redis.clients.jedis.Jedis
 
-object Restaurant extends JsonSupport {
+import scala.concurrent.ExecutionContext
 
-  private val jedis = new Jedis("localhost", 6379)
+object Restaurant extends JsonSupport with Logger{
 
-  def apply(deliveryRef: ActorRef[DeliveryCommand]): Behavior[RestaurantCommand] = {
-    order(deliveryRef, 0)
+  def apply(actors : ActorProvider,
+            orderService : OrderService): Behavior[RestaurantCommand] = {
+    order(actors,orderService)
   }
 
-  def order(deliveryRef: ActorRef[DeliveryCommand], totalOrders: Int): Behavior[RestaurantCommand] = {
+  def order(actors: ActorProvider,orderService: OrderService): Behavior[RestaurantCommand] = {
     Behaviors.receive {
       (context, message) => {
+	      given ec: ExecutionContext = context.executionContext
         message match {
           case PlaceOrder(orderDetails, customerRef, replyTo) => {
-            val itemSummary = orderDetails.item.mkString(", ")
-            context.log.info(s"We have started preparing items: $itemSummary")
-            val orderId = jedis.incr("customer:order:id").toString
-            val id = s"ORD-$orderId"
-            customerRef ! OrderAccepted(itemSummary, id)
-            context.log.info(s"OrderId is $orderId")
-            deliveryRef ! FindPartner(itemSummary, id, context.self)
-            replyTo ! PlaceOrderResponse(s"Order placed successfully with orderId $orderId . Thank you ${orderDetails.name}" )
-            order(deliveryRef, totalOrders + 1)
+            val itemSummary = orderDetails.items.mkString(", ")
+            log.info(s"We have started preparing items: $itemSummary")
+            orderService.createOrder(orderDetails) map{
+              case Right(value) => {
+	              actors.deliveryActor ! FindPartner(orderId = value)
+	              log.info(s"OrderId is ${value}")
+              }
+              case Left(value) =>   replyTo ! OrderCreationFailed
+            }
+	          Behaviors.same
           }
           case PartnerAssigned(orderId,customerRef) => {
             context.log.info(s"Partner assigned for order $orderId. Total orders: $totalOrders")
             customerRef ! DeliveryPartnerAssigned(order)
             Behaviors.same
+          }
+          case OrderCreationFailed => {
+
           }
         }
       }

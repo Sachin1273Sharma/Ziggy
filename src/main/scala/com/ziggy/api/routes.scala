@@ -9,7 +9,8 @@ import com.ziggy.api.AuthRoutes
 
 import javax.inject.{Inject, Singleton}
 @Singleton
-class routes @Inject() (authRoutes : AuthRoutes) extends JsonSupport
+class routes @Inject() (authRoutes : AuthRoutes,
+                        orderRoutes : OrderRoutes) extends JsonSupport
 {
   val routes: Route =
     pathPrefix("api"){
@@ -19,6 +20,9 @@ class routes @Inject() (authRoutes : AuthRoutes) extends JsonSupport
         },
         {
           authRoutes.routes
+        },
+        {
+          orderRoutes.routes
         }
       )
     }

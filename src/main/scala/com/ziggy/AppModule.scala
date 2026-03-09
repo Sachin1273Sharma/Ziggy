@@ -2,13 +2,12 @@ package com.ziggy
 
 import com.google.inject.{AbstractModule, Provides, Singleton}
 import akka.actor.typed.ActorSystem
-import scala.concurrent.ExecutionContext
-import javax.inject.Inject
+import slick.jdbc.PostgresProfile.api.Database
 
+import scala.concurrent.ExecutionContext
 
 class AppModule(system: ActorSystem[_]) extends AbstractModule {
 
-  // Akka ki internal cheezein jo Guice khud nahi bana sakta
   @Provides
   @Singleton
   def provideActorSystem: ActorSystem[_] = system
@@ -16,4 +15,8 @@ class AppModule(system: ActorSystem[_]) extends AbstractModule {
   @Provides
   @Singleton
   def provideExecutionContext: ExecutionContext = system.executionContext
+
+  @Provides
+  @Singleton
+  def provideDatabase: Database = Database.forConfig("db-config.db")
 }

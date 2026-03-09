@@ -6,7 +6,6 @@ import akka.http.scaladsl.Http
 import com.google.inject.Guice
 import com.ziggy.actor.{Customer, Delivery, Restaurant}
 import com.ziggy.api.routes
-import com.ziggy.service.{Order, PlaceOrder}
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.io.StdIn
