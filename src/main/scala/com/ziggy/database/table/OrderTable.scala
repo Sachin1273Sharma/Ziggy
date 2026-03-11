@@ -1,17 +1,56 @@
 package com.ziggy.database.table
 
-import com.ziggy.database.model.Order
-import com.ziggy.database.schema.OrderSchema
+import com.ziggy.database.model.{Address, Customer, Order, Restaurant}
+import com.ziggy.database.schema.{AddressSchema, CustomerAddressSchema, CustomerSchema, OrderSchema, ResturantScheme}
 import slick.jdbc.PostgresProfile.api.*
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
+final case class OrderRoutingContext(
+  order: Order,
+  customer: Customer,
+  customerAddress: Option[Address],
+  restaurant: Restaurant,
+  restaurantAddress: Option[Address]
+)
+
 final class OrderTable(db: Database)(implicit ec: ExecutionContext) {
   private val orders = OrderSchema.orders
+  private val customers = CustomerSchema.customers
+  private val customerAddresses = CustomerAddressSchema.customerAddresses
+  private val addresses = AddressSchema.addresses
+  private val restaurants = ResturantScheme.restaurants
 
-  def createTable: Future[Unit] =
+  private def findAddressById(addressId: Option[String]): DBIO[Option[Address]] =
+    addressId match {
+      case Some(id) => addresses.filter(_.id === id).result.headOption
+      case None => DBIO.successful(None)
+    }
+
+  private def findCurrentCustomerAddress(customerId: Option[UUID]): DBIO[Option[Address]] = {
+	  customerId match {
+		  case Some(id) =>
+			  customerAddresses
+				  .filter(link => link.customerId === id)
+				  .map(_.addressId)
+				  .result
+				  .headOption
+				  .flatMap(findAddressById)
+		  case None => DBIO.successful(None)
+	  }
+  }
+
+
+	  def assignPartnerAction(orderId: String, partnerId: String) : DBIO[Int] = {
+		  orders.filter(_.id === orderId).
+			  map(x => (x.partnerId, x.isPartnerAssigned)).
+			  update((Some(partnerId), true))
+	  }
+
+
+	def createTable: Future[Unit] =
     db.run(orders.schema.create)
 
   def createTableIfNotExists: Future[Unit] =
@@ -46,6 +85,29 @@ final class OrderTable(db: Database)(implicit ec: ExecutionContext) {
 
   def listAll: Future[Seq[Order]] =
     db.run(orders.sortBy(_.id.asc).result)
+
+  def findRoutingContext(orderId: String): Future[Option[OrderRoutingContext]] = {
+    val action = orders
+      .filter(_.id === orderId)
+      .join(customers)
+      .on(_.customerId === _.id)
+      .join(restaurants)
+      .on { case ((order, _), restaurant) => order.restaurantId === restaurant.id }
+      .map { case ((order, customer), restaurant) => (order, customer, restaurant) }
+      .result
+      .headOption
+      .flatMap {
+        case Some((order, customer, restaurant)) =>
+          for {
+            customerAddress <- findCurrentCustomerAddress(customer.id)
+            restaurantAddress <- findAddressById(restaurant.addressId)
+          } yield Some(OrderRoutingContext(order, customer, customerAddress, restaurant, restaurantAddress))
+        case None =>
+          DBIO.successful(None)
+      }
+
+    db.run(action)
+  }
 
   def update(id: String, order: Order): Future[Int] = {
     val updatedOrder = order.copy(id = Some(id))

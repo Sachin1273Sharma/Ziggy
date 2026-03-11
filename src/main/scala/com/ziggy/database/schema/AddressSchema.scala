@@ -7,15 +7,15 @@ class AddressSchema(tag: Tag) extends Table[Address](tag, "addresses") {
 
   def id = column[String]("id", O.PrimaryKey)
   def line1 = column[Option[String]]("line_1")
-  def line2 = column[Option[String]]("line_2")
-  def city = column[Option[String]]("city")
-  def country = column[Option[String]]("country")
-  def pincode = column[Option[String]]("pincode")
-  def latitude = column[Option[Double]]("latitude")
-  def longitude = column[Option[Double]]("longitude")
+  def line2 = column[String]("line_2")
+  def city = column[String]("city")
+  def country = column[String]("country")
+  def pincode = column[String]("pincode")
+  def latitude = column[Double]("latitude")
+  def longitude = column[Double]("longitude")
 
   def * = (
-    id.?,
+    id,
     line1,
     line2,
     city,

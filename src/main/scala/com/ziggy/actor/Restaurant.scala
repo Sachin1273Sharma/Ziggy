@@ -34,7 +34,6 @@ object Restaurant extends JsonSupport with Logger{
 	          Behaviors.same
           }
           case PartnerAssigned(orderId,customerRef) => {
-            context.log.info(s"Partner assigned for order $orderId. Total orders: $totalOrders")
             customerRef ! DeliveryPartnerAssigned(order)
             Behaviors.same
           }

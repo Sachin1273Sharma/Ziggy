@@ -1,10 +1,10 @@
 package com.ziggy.actor
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
-import com.ziggy.service.{Deliver, DeliveryCommand, FindPartner, OrderConfirmed, PartnerAssigned}
+import com.ziggy.service.{Deliver, DeliveryCommand, FindPartner, OrderConfirmed, PartnerAssigned, PartnerService}
 
 object Delivery {
-  def apply() : Behavior[DeliveryCommand] = {
+  def apply(partnerService : PartnerService) : Behavior[DeliveryCommand] = {
     Behaviors.receive {
       (context,message) => {
         message match {
@@ -14,7 +14,7 @@ object Delivery {
             Behaviors.same
           }
           case FindPartner(orderId) => {
-
+	          partnerService.checkRestaurantAndAssignPartner(orderId)
             Behaviors.same
           }
           case _ => Behaviors.same

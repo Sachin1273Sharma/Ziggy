@@ -4,11 +4,12 @@ import com.ziggy.database.model.Address
 import com.ziggy.database.schema.AddressSchema
 import slick.jdbc.PostgresProfile.api.*
 
-import java.util.UUID
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-final class AddressTable(db: Database)(implicit ec: ExecutionContext) {
+@Singleton
+final class AddressTable @Inject(db: Database)(implicit ec: ExecutionContext) {
   private val addresses = AddressSchema.addresses
 
   def createTable: Future[Unit] =
@@ -24,12 +25,12 @@ final class AddressTable(db: Database)(implicit ec: ExecutionContext) {
     db.run(addresses.schema.dropIfExists)
 
   def insert(address: Address): Future[String] = {
-    val addressToInsert = address.copy(id = address.id.orElse(Some(UUID.randomUUID().toString)))
-    db.run((addresses += addressToInsert).map(_ => addressToInsert.id.get))
+    val addressToInsert = address.copy(id = address.id)
+    db.run((addresses += addressToInsert).map(_ => addressToInsert.id))
   }
 
   def insertAll(values: Seq[Address]): Future[Option[Int]] =
-    db.run(addresses ++= values.map(address => address.copy(id = address.id.orElse(Some(UUID.randomUUID().toString)))))
+    db.run(addresses ++= values.map(address => address.copy(id = address.id)))
 
   def findById(id: String): Future[Option[Address]] =
     db.run(addresses.filter(_.id === id).result.headOption)
@@ -38,7 +39,7 @@ final class AddressTable(db: Database)(implicit ec: ExecutionContext) {
     db.run(addresses.sortBy(_.id.asc).result)
 
   def update(id: String, address: Address): Future[Int] = {
-    val updatedAddress = address.copy(id = Some(id))
+    val updatedAddress = address.copy(id = id)
     db.run(addresses.filter(_.id === id).update(updatedAddress))
   }
 

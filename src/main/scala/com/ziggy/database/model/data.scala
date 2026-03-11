@@ -6,21 +6,20 @@ import java.time.Instant
 import java.util.UUID
 
 final case class Address(
-                          id: Option[String] = None,
-                          line1: Option[String] = None,
-                          line2: Option[String] = None,
-                          city: Option[String] = None,
-                          country: Option[String] = None,
-                          pincode: Option[String] = None,
-                          latitude: Option[Double] = None,
-                          longitude: Option[Double] = None
+	                        id: String,
+	                        line1: Option[String],
+	                        line2: String,
+	                        city: String,
+	                        country: String,
+	                        pincode: String,
+	                        latitude: Double,
+	                        longitude: Double
                         )
 
 final case class CustomerAddress(
                                   id: Option[String] = None,
                                   customerId: UUID,
-                                  addressId: String,
-                                  isCurrentDelivery: Boolean = false
+                                  addressId: String
                                 )
 
 final case class Customer(
@@ -43,13 +42,14 @@ final case class Partner(
                           email: String,
                           phoneNumber: String,
                           vehicle: PartnerVehicle,
-                          city : String
+                          city : String,
                           isOpenToService: Boolean = true,
                           isAvailable: Boolean = true,
                           isEngagedInOrder: Boolean = false,
                           currentOrderId: Option[String] = None,
                           createdAt: Option[Instant] = None,
-                          updatedAt: Option[Instant] = None
+                          updatedAt: Option[Instant] = None,
+                          pinCodes : List[String]
                         )
 
 enum PartnerVehicle:
@@ -97,11 +97,10 @@ final case class Restaurant(
                             id: Option[String] = None,
                             addressId: Option[String] = None,
                             joiningDate: Timestamp,
-                            latitude: Double,
-                            longitude: Double,
                             openingTime: Time,
                             closingTime: Time,
-                            isOpen: Boolean = false
+                            isOpen: Boolean = false,
+                            pinCodes :List[String]
                           )
 
 
