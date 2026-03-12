@@ -97,38 +97,36 @@ final class PartnerTable(db: Database)(implicit ec: ExecutionContext) {
         .update((isOpenToService, Some(Instant.now())))
     )
 
-  def assignOrderAction(partnerId: String, orderId: String): DBIO[Int] = {
+  def assignOrder(id: String, orderId: String): Future[Int] =
+    db.run(
       partners
-        .filter(_.id === partnerId)
+        .filter(_.id === id)
         .map(partner => (partner.isAvailable, partner.isEngagedInOrder, partner.currentOrderId, partner.updatedAt))
         .update((false, true, Some(orderId), Some(Instant.now())))
-  }
+    )
 
-	def clearOrder(id: String): Future[Int] = {
+  def clearOrder(id: String): Future[Int] =
     db.run(
       partners
         .filter(_.id === id)
         .map(partner => (partner.isAvailable, partner.isEngagedInOrder, partner.currentOrderId, partner.updatedAt))
         .update((true, false, None, Some(Instant.now())))
     )
-	}
 
-	def delete(id: String): Future[Int] = {
+  def delete(id: String): Future[Int] =
     db.run(partners.filter(_.id === id).delete)
-	}
 
-	def deleteAll: Future[Int] =
+  def deleteAll: Future[Int] =
     db.run(partners.delete)
 
 	/* custom queries */
-  def findAvailablePartners(pincode: String): Future[Seq[Partner]] = {
-    db.run(
-      partners
-        .filter(partner =>
-          partner.isOpenToService && partner.isAvailable && (partner.isEngagedInOrder === false)
-        )
-        .sortBy(_.id.asc)
-        .result
-    ).map(_.filter(_.pinCodes.contains(pincode)))
-  }
+	def findAvailablePartners(pincode: String) = {
+		using PartnerSchema.MappedColumnType
+		partners.filter { p =>
+			(p.serviceablePins === pincode) ||
+				(p.serviceablePins like s"$pincode,%") ||
+				(p.serviceablePins like s"%,$pincode") ||
+				(p.serviceablePins like s"%,$pincode,%")
+		}
+	}
 }

@@ -10,7 +10,7 @@ import akka.util.Timeout
 import com.ziggy.actor.ActorProvider
 import com.ziggy.controller.OrderController
 import com.ziggy.database.model.{Customer, OrderRequest}
-import com.ziggy.service.{DbService, OrderCreationFailed, PlaceOrder}
+import com.ziggy.service.{DbService, Delivered, OrderCreationFailed, PlaceOrder}
 import com.ziggy.utils.Logger
 import com.ziggy.utils.security.ZiggySecurity
 import io.circe.generic.auto.*
@@ -21,10 +21,10 @@ import scala.util.Success
 
 @Singleton
 class OrderRoutes @Inject()(
-	                                      actors: ActorProvider,
-	                                      dbService: DbService,
-	                                      orderController: OrderController
-                                      )(
+	                           actors: ActorProvider,
+	                           dbService: DbService,
+	                           orderController: OrderController
+                           )(
 	                                      using ec: ExecutionContext
                                       )(using timeout: Timeout)(using scheduler: Scheduler) extends ZiggySecurity(
 	dbService)(ec) with JsonSupport with Logger {
@@ -45,6 +45,12 @@ class OrderRoutes @Inject()(
 				}
 			}
 			}
-		})
+		},
+			path("delivered" / Segment){
+				orderId => {
+					actors.deliveryActor ! Delivered(orderId)
+					complete(StatusCodes.NoContent)
+				}
+			})
 	}
 }

@@ -7,7 +7,9 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-@Singleton class PartnerService @Inject()(dbService: DbService)(using ec: ExecutionContext) extends Logger {
+@Singleton class PartnerService @Inject()
+																(dbService: DbService)
+																(using ec: ExecutionContext) extends Logger {
 
 	def checkRestaurantAndAssignPartner(orderId: String): Future[Boolean] = {
 		for {
@@ -39,6 +41,14 @@ import scala.util.{Failure, Success}
 			     case None => Future.successful(false)
 		     }
 		} yield partner
+	}
+
+	def cancelOrder(orderId : String): Unit  = {
+			dbService.cancelOrder(orderId)
+	}
+
+	def orderedDelivered(orderId : String): Unit = {
+
 	}
 
 }

@@ -17,7 +17,6 @@ class PartnerSchema(tag: Tag) extends Table[Partner](tag, "partners") {
   def email = column[String]("email")
   def phoneNumber = column[String]("phone_number")
   def vehicle = column[PartnerVehicle]("vehicle")
-  def city = column[String]("city")
   def isOpenToService = column[Boolean]("is_open_to_service")
   def isAvailable = column[Boolean]("is_available")
   def isEngagedInOrder = column[Boolean]("is_engaged_in_order")
@@ -36,7 +35,6 @@ class PartnerSchema(tag: Tag) extends Table[Partner](tag, "partners") {
     email,
     phoneNumber,
     vehicle,
-    city,
     isOpenToService,
     isAvailable,
     isEngagedInOrder,

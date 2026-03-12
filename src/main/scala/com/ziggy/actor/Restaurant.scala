@@ -33,13 +33,6 @@ object Restaurant extends JsonSupport with Logger{
             }
 	          Behaviors.same
           }
-          case PartnerAssigned(orderId,customerRef) => {
-            customerRef ! DeliveryPartnerAssigned(order)
-            Behaviors.same
-          }
-          case OrderCreationFailed => {
-
-          }
         }
       }
 

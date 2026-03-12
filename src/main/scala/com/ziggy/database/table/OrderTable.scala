@@ -1,6 +1,6 @@
 package com.ziggy.database.table
 
-import com.ziggy.database.model.{Address, Customer, Order, Restaurant}
+import com.ziggy.database.model.{Address, Customer, Order, OrderStatus, Restaurant}
 import com.ziggy.database.schema.{AddressSchema, CustomerAddressSchema, CustomerSchema, OrderSchema, ResturantScheme}
 import slick.jdbc.PostgresProfile.api.*
 
@@ -144,4 +144,10 @@ final class OrderTable(db: Database)(implicit ec: ExecutionContext) {
 
   def deleteAll: Future[Int] =
     db.run(orders.delete)
+
+	def cancelOrder(id : String) : Future[Int] =
+		db.run(orders.filter(_.id === id).map(_.status).update(OrderStatus.Cancelled))
+
+	def orderDelivered(id : String) : DBIO[Int] =
+		orders.filter(_.id === id).map(_.status).update(OrderStatus.Delivered)
 }
