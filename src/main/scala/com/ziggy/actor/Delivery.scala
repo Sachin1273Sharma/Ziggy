@@ -1,6 +1,6 @@
 package com.ziggy.actor
-import akka.actor.typed.Behavior
-import akka.actor.typed.scaladsl.Behaviors
+import org.apache.pekko.actor.typed.Behavior
+import org.apache.pekko.actor.typed.scaladsl.Behaviors
 import com.ziggy.service.{CancelOrder, Delivered, DeliveryCommand, FindPartner, OrderService
 	, PartnerService, RetrySearchingPartner, doNothing}
 import com.ziggy.utils.Logger

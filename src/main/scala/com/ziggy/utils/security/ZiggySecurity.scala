@@ -1,8 +1,8 @@
 package com.ziggy.utils.security
 
-import akka.http.scaladsl.model.headers.{HttpChallenge, HttpChallenges}
-import akka.http.scaladsl.server.Directives.AuthenticationResult
-import akka.http.scaladsl.server.directives.{AuthenticationResult, Credentials}
+import org.apache.pekko.http.scaladsl.model.headers.{HttpChallenge, HttpChallenges}
+import org.apache.pekko.http.scaladsl.server.Directives.AuthenticationResult
+import org.apache.pekko.http.scaladsl.server.directives.{AuthenticationResult, Credentials}
 import com.ziggy.database.model.Customer
 import com.ziggy.service.DbService
 import com.ziggy.utils.AppConfig

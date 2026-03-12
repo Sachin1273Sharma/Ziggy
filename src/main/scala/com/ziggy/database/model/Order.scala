@@ -13,11 +13,6 @@ final case class Order(
                         status: OrderStatus
                       )
 
-final case class OrderItem(
-                            item: Item,
-                            quantity: Int,
-                            orderPrice: Double
-                          )
 
 final case class OrderRequest(
                                items: Array[OrderItem],

@@ -1,5 +1,5 @@
 package com.ziggy.controller
-import akka.http.scaladsl.model.headers.HttpCookie
+import org.apache.pekko.http.scaladsl.model.headers.HttpCookie
 import com.ziggy.actor.ActorProvider
 import com.ziggy.database.model.*
 import com.ziggy.service.auth.AuthService

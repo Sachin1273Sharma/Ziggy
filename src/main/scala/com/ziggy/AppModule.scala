@@ -1,7 +1,7 @@
 package com.ziggy
 
 import com.google.inject.{AbstractModule, Provides, Singleton}
-import akka.actor.typed.ActorSystem
+import org.apache.pekko.actor.typed.ActorSystem
 import slick.jdbc.PostgresProfile.api.Database
 
 import scala.concurrent.ExecutionContext

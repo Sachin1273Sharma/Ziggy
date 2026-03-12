@@ -1,12 +1,12 @@
 package com.ziggy.api
 
 
-import akka.actor.typed.Scheduler
-import akka.actor.typed.scaladsl.AskPattern.{Askable, schedulerFromActorSystem}
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Directives.*
-import akka.http.scaladsl.server.*
-import akka.util.Timeout
+import org.apache.pekko.actor.typed.Scheduler
+import org.apache.pekko.actor.typed.scaladsl.AskPattern.{Askable, schedulerFromActorSystem}
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.http.scaladsl.server.Directives.*
+import org.apache.pekko.http.scaladsl.server.*
+import org.apache.pekko.util.Timeout
 import com.ziggy.actor.ActorProvider
 import com.ziggy.controller.OrderController
 import com.ziggy.database.model.{Customer, OrderRequest}

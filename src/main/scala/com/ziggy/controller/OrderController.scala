@@ -1,7 +1,7 @@
 package com.ziggy.controller
 
-import akka.actor.typed.scaladsl.AskPattern.Askable
-import akka.util.Timeout
+import org.apache.pekko.actor.typed.scaladsl.AskPattern.Askable
+import org.apache.pekko.util.Timeout
 import com.ziggy.actor.ActorProvider
 import com.ziggy.database.model.OrderRequest
 import com.ziggy.service.{OrderAccepted, OrderConfirmed, PlaceOrder, PlaceOrderResponse, RestaurantCommand}

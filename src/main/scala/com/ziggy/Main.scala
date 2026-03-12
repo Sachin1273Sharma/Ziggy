@@ -1,11 +1,12 @@
 package com.ziggy
 
-import akka.actor.typed.{ActorSystem, Behavior}
-import akka.actor.typed.scaladsl.Behaviors
-import akka.http.scaladsl.Http
+import org.apache.pekko.actor.typed.{ActorSystem, Behavior}
+import org.apache.pekko.actor.typed.scaladsl.Behaviors
+import org.apache.pekko.http.scaladsl.Http
 import com.google.inject.Guice
 import com.ziggy.actor.{Customer, Delivery, Restaurant}
 import com.ziggy.api.routes
+import com.ziggy.service.{DbService, OrderService, PartnerService}
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.io.StdIn
@@ -15,7 +16,10 @@ object Main {
     def main(args : Array[String]) : Unit = {
       val rootBehavior : Behavior[Nothing] = Behaviors.setup[Nothing]  {
         context => {
-          val delivery = context.spawn(Delivery(),"delivery")
+	        val dbService =  new DbService()
+	        val partnerService = new PartnerService()
+	        val orderService = new OrderService()
+	        val delivery = context.spawn(Delivery(),"delivery")
           val restaurant = context.spawn(Restaurant(delivery),"restaurant")
           val customer = context.spawn(Customer(restaurant),"customer")
           Behaviors.empty

@@ -1,8 +1,8 @@
 package com.ziggy.api
 
-import akka.http.scaladsl.marshalling.{Marshaller, ToEntityMarshaller}
-import akka.http.scaladsl.unmarshalling.{FromEntityUnmarshaller, Unmarshaller}
-import akka.http.scaladsl.model.MediaTypes.`application/json`
+import org.apache.pekko.http.scaladsl.marshalling.{Marshaller, ToEntityMarshaller}
+import org.apache.pekko.http.scaladsl.unmarshalling.{FromEntityUnmarshaller, Unmarshaller}
+import org.apache.pekko.http.scaladsl.model.MediaTypes.`application/json`
 import io.circe.syntax._
 import io.circe.parser.decode
 import io.circe.{Decoder, Encoder, Printer}

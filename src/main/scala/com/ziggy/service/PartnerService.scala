@@ -25,21 +25,21 @@ import scala.util.{Failure, Success}
 		} yield result
 	}
 
-	private def assignPartner(pincode: String, orderId: String) :Future[Boolean] = {
+	private def assignPartner(pincode: String, orderId: String): Future[Boolean] = {
 		for {
 			partners <- dbService.findNearbyAvailablePartners(pincode)
 			partner <- partners.headOption match {
-			     case Some(partnerToBeAssigned) => {
-				     val result = dbService.assignPartner(partnerToBeAssigned.id.getOrElse(""), orderId)
-				     result.transform { case Success(value) => Success(value)
-				     case Failure(ex) => {
-					     log.info(s"Exception occurred while assigning partner \n ${ex.getMessage}")
-					     Success(false)
-				     }
-				     }
-			     }
-			     case None => Future.successful(false)
-		     }
+				case Some(partnerToBeAssigned) => {
+					val result = dbService.assignPartner(partnerToBeAssigned.id.getOrElse(""), orderId)
+					result.transform { case Success(value) => Success(value)
+					case Failure(ex) => {
+						log.info(s"Exception occurred while assigning partner \n ${ex.getMessage}")
+						Success(false)
+					}
+					}
+				}
+				case None => Future.successful(false)
+			}
 		} yield partner
 	}
 

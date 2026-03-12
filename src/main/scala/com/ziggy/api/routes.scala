@@ -1,7 +1,7 @@
 package com.ziggy.api
 
-import akka.http.scaladsl.server.Directives.*
-import akka.http.scaladsl.server.Route
+import org.apache.pekko.http.scaladsl.server.Directives.*
+import org.apache.pekko.http.scaladsl.server.Route
 import com.ziggy.controller.OrderController
 import com.ziggy.service.OrderDetails
 import io.circe.generic.auto.*
