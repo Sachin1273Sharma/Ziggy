@@ -29,5 +29,12 @@ class OrderService @Inject()(dbService: DbService)
       }
   }
 
+	def cancelOrder(orderId: String): Future[Boolean] = {
+		dbService.cancelOrder(orderId).transform { case 1 => Success(true)
+		case 0 => Success(false)
+		case _ => Success(false)
+		}
+	}
+
 
 }

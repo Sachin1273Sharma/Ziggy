@@ -10,123 +10,128 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 final class PartnerTable(db: Database)(implicit ec: ExecutionContext) {
-  import PartnerSchema.given
+	import PartnerSchema.given
 
-  private val partners = PartnerSchema.partners
+	private val partners = PartnerSchema.partners
 
-  def createTable: Future[Unit] =
-    db.run(partners.schema.create)
+	def createTable: Future[Unit] =
+		db.run(partners.schema.create)
 
-  def createTableIfNotExists: Future[Unit] =
-    db.run(partners.schema.createIfNotExists)
+	def createTableIfNotExists: Future[Unit] =
+		db.run(partners.schema.createIfNotExists)
 
-  def dropTable: Future[Unit] =
-    db.run(partners.schema.drop)
+	def dropTable: Future[Unit] =
+		db.run(partners.schema.drop)
 
-  def dropTableIfExists: Future[Unit] =
-    db.run(partners.schema.dropIfExists)
+	def dropTableIfExists: Future[Unit] =
+		db.run(partners.schema.dropIfExists)
 
-  def insert(partner: Partner): Future[String] = {
-    val now = Instant.now()
-    val partnerToInsert = partner.copy(
-      id = partner.id.orElse(Some(UUID.randomUUID().toString)),
-      createdAt = partner.createdAt.orElse(Some(now)),
-      updatedAt = Some(now)
-    )
+	def insert(partner: Partner): Future[String] = {
+		val now = Instant.now()
+		val partnerToInsert = partner.copy(
+			id = partner.id.orElse(Some(UUID.randomUUID().toString)),
+			createdAt = partner.createdAt.orElse(Some(now)),
+			updatedAt = Some(now)
+		)
 
-    db.run((partners += partnerToInsert).map(_ => partnerToInsert.id.get))
-  }
+		db.run((partners += partnerToInsert).map(_ => partnerToInsert.id.get))
+	}
 
-  def insertAll(values: Seq[Partner]): Future[Option[Int]] = {
-    val now = Instant.now()
-    db.run(
-      partners ++= values.map { partner =>
-        partner.copy(
-          id = partner.id.orElse(Some(UUID.randomUUID().toString)),
-          createdAt = partner.createdAt.orElse(Some(now)),
-          updatedAt = Some(now)
-        )
-      }
-    )
-  }
+	def insertAll(values: Seq[Partner]): Future[Option[Int]] = {
+		val now = Instant.now()
+		db.run(
+			partners ++= values.map { partner =>
+				partner.copy(
+					id = partner.id.orElse(Some(UUID.randomUUID().toString)),
+					createdAt = partner.createdAt.orElse(Some(now)),
+					updatedAt = Some(now)
+				)
+			}
+		)
+	}
 
-  def findById(id: String): Future[Option[Partner]] =
-    db.run(partners.filter(_.id === id).result.headOption)
+	def findById(id: String): Future[Option[Partner]] =
+		db.run(partners.filter(_.id === id).result.headOption)
 
-  def findByEmail(email: String): Future[Option[Partner]] =
-    db.run(partners.filter(_.email === email).result.headOption)
+	def findByEmail(email: String): Future[Option[Partner]] =
+		db.run(partners.filter(_.email === email).result.headOption)
 
-  def findByVehicle(vehicle: PartnerVehicle): Future[Seq[Partner]] =
-    db.run(partners.filter(_.vehicle === vehicle).sortBy(_.id.asc).result)
+	def findByVehicle(vehicle: PartnerVehicle): Future[Seq[Partner]] =
+		db.run(partners.filter(_.vehicle === vehicle).sortBy(_.id.asc).result)
 
-  def listAll: Future[Seq[Partner]] =
-    db.run(partners.sortBy(_.id.asc).result)
+	def listAll: Future[Seq[Partner]] =
+		db.run(partners.sortBy(_.id.asc).result)
 
-  def listAvailable: Future[Seq[Partner]] =
-    db.run(
-      partners
-        .filter(partner =>
-          partner.isOpenToService && partner.isAvailable && (partner.isEngagedInOrder === false)
-        )
-        .sortBy(_.id.asc)
-        .result
-    )
+	def listAvailable: Future[Seq[Partner]] =
+		db.run(
+			partners
+				.filter(partner =>
+					partner.isOpenToService && partner.isAvailable && (partner.isEngagedInOrder === false)
+				)
+				.sortBy(_.id.asc)
+				.result
+		)
 
-  def update(id: String, partner: Partner): Future[Int] = {
-    val updatedPartner = partner.copy(
-      id = Some(id),
-      updatedAt = Some(Instant.now())
-    )
+	def update(id: String, partner: Partner): Future[Int] = {
+		val updatedPartner = partner.copy(
+			id = Some(id),
+			updatedAt = Some(Instant.now())
+		)
 
-    db.run(partners.filter(_.id === id).update(updatedPartner))
-  }
+		db.run(partners.filter(_.id === id).update(updatedPartner))
+	}
 
-  def updateAvailability(id: String, isAvailable: Boolean): Future[Int] =
-    db.run(
-      partners
-        .filter(_.id === id)
-        .map(partner => (partner.isAvailable, partner.updatedAt))
-        .update((isAvailable, Some(Instant.now())))
-    )
+	def updateAvailability(id: String, isAvailable: Boolean): Future[Int] =
+		db.run(
+			partners
+				.filter(_.id === id)
+				.map(partner => (partner.isAvailable, partner.updatedAt))
+				.update((isAvailable, Some(Instant.now())))
+		)
 
-  def updateOpenToService(id: String, isOpenToService: Boolean): Future[Int] =
-    db.run(
-      partners
-        .filter(_.id === id)
-        .map(partner => (partner.isOpenToService, partner.updatedAt))
-        .update((isOpenToService, Some(Instant.now())))
-    )
+	def updateOpenToService(id: String, isOpenToService: Boolean): Future[Int] =
+		db.run(
+			partners
+				.filter(_.id === id)
+				.map(partner => (partner.isOpenToService, partner.updatedAt))
+				.update((isOpenToService, Some(Instant.now())))
+		)
 
-  def assignOrder(id: String, orderId: String): Future[Int] =
-    db.run(
-      partners
-        .filter(_.id === id)
-        .map(partner => (partner.isAvailable, partner.isEngagedInOrder, partner.currentOrderId, partner.updatedAt))
-        .update((false, true, Some(orderId), Some(Instant.now())))
-    )
+	def assignOrderAction(partnerId: String, orderId: String): DBIO[Int] = {
+		partners
+			.filter(_.id === partnerId)
+			.map(partner => (partner.isEngagedInOrder, partner.currentOrderId, partner.updatedAt))
+			.update((true, Some(orderId), Some(Instant.now())))
+	}
 
-  def clearOrder(id: String): Future[Int] =
-    db.run(
-      partners
-        .filter(_.id === id)
-        .map(partner => (partner.isAvailable, partner.isEngagedInOrder, partner.currentOrderId, partner.updatedAt))
-        .update((true, false, None, Some(Instant.now())))
-    )
+	def clearOrder(id: String): Future[Int] =
+		db.run(
+			partners
+				.filter(_.id === id)
+				.map(partner => (partner.isAvailable, partner.isEngagedInOrder, partner.currentOrderId, partner.updatedAt))
+				.update((true, false, None, Some(Instant.now())))
+		)
 
-  def delete(id: String): Future[Int] =
-    db.run(partners.filter(_.id === id).delete)
+	def delete(id: String): Future[Int] =
+		db.run(partners.filter(_.id === id).delete)
 
-  def deleteAll: Future[Int] =
-    db.run(partners.delete)
+	def deleteAll: Future[Int] =
+		db.run(partners.delete)
 
 	/* custom queries */
-	def findAvailablePartners(pincode: String) = {
-		using PartnerSchema.MappedColumnType
-		partners.filter { p =>
-			(p.serviceablePins === pincode) ||
-				(p.serviceablePins like s"$pincode,%") ||
-				(p.serviceablePins like s"%,$pincode") ||
-				(p.serviceablePins like s"%,$pincode,%")
-		}
+	def findAvailablePartners(pincode: String): Future[Seq[Partner]] = {
+		db.run(
+			partners
+				.filter(partner =>
+					partner.isOpenToService && partner.isAvailable && (partner.isEngagedInOrder === false)
+				)
+				.sortBy(_.id.asc)
+				.result
+		).map(_.filter(_.pinCodes.contains(pincode)))
+	}
+
+	def freePartner(partnerId : String): DBIO[Int] = {
+		partners.filter(_.id === partnerId).map(x => (x.currentOrderId,x.isEngagedInOrder,x.updatedAt))
+			.update((None,false,Some(Instant.now())))
 	}
 }

@@ -1,24 +1,20 @@
 package com.ziggy.actor
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
-import com.ziggy.service.{CancelOrder, Deliver, Delivered, DeliveryCommand, FindPartner, OrderConfirmed, PartnerAssigned, PartnerService, RetrySearchingPartner, doNothing}
+import com.ziggy.service.{CancelOrder, Delivered, DeliveryCommand, FindPartner, OrderService
+	, PartnerService, RetrySearchingPartner, doNothing}
 import com.ziggy.utils.Logger
 
 import scala.concurrent.duration.DurationInt
 import scala.util.Success
 
 object Delivery extends Logger{
-  def apply(partnerService : PartnerService) : Behavior[DeliveryCommand] = {
+  def apply(partnerService : PartnerService,orderService : OrderService) : Behavior[DeliveryCommand] = {
 	  Behaviors.withTimers {
 		  timers =>
 		  Behaviors.receive {
 			  (context, message) => {
 				  message match {
-					  case Deliver(item, customerRef) => {
-						  context.log.info(s"Delivering item $item")
-						  customerRef ! OrderConfirmed(item)
-						  Behaviors.same
-					  }
 					  case FindPartner(orderId,attempt) => {
 						  val result = partnerService.checkRestaurantAndAssignPartner(orderId)
 								if(attempt <= 3) {
@@ -39,11 +35,12 @@ object Delivery extends Logger{
 						  Behaviors.same
 					  }
 					  case CancelOrder(orderId) => {
-						  partnerService.cancelOrder(orderId)
+						  orderService.cancelOrder(orderId)
 						  Behaviors.same
 					  }
 					  case Delivered(orderId) => {
-
+						  partnerService.orderedDelivered(orderId)
+						  Behaviors.same
 					  }
 					  case doNothing =>
 						  Behaviors.same

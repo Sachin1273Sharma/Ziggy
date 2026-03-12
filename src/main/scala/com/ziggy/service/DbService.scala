@@ -34,7 +34,12 @@ import scala.concurrent.{ExecutionContext, Future}
 	def createOrder(order: Order): Future[String] = {
 		orderTable.insert(order)
 	}
-
+	def findOrderById(orderId : String) : Future[Option[Order]] = {
+		orderTable.findById(orderId)
+	}
+	def cancelOrder(orderId : String): Future[Int] = {
+		db.run(orderTable.cancelOrder(orderId))
+	}
 	/* Partner */
 
 	def createPartner(partner: Partner): Future[String] = {
@@ -77,12 +82,13 @@ import scala.concurrent.{ExecutionContext, Future}
 		partnerTable.findAvailablePartners(pincode)
 	}
 
-	/* order */ def findOrderAndRestaurantAddressByOrderId(orderId: String): Future[Option[OrderRoutingContext]] = {
+	/* order */
+	def findOrderAndRestaurantAddressByOrderId(orderId: String): Future[Option[OrderRoutingContext]] = {
 		orderTable.findRoutingContext(orderId)
 	}
 
-
-	/* Transactional Queries */ def assignPartner(partnerId: String, orderId: String): Future[Boolean] = {
+	/* Transactional Queries */
+	def assignPartner(partnerId: String, orderId: String): Future[Boolean] = {
 		db.run((for {
 			partnerAssigned <- partnerTable.assignOrderAction(partnerId,orderId)
 			orderAssigned <- orderTable.assignPartnerAction(orderId, partnerId)} yield {
@@ -92,4 +98,17 @@ import scala.concurrent.{ExecutionContext, Future}
 				} else false
 		}).transactionally)
 	}
+
+	def orderDelivered(orderId: String,partnerId : String): Future[Boolean] = {
+		db.run((for {
+			cancelOrder <- orderTable.cancelOrder(orderId)
+			updatePartnerStatus <- partnerTable.freePartner(partnerId)
+		} yield {
+			if ((cancelOrder + updatePartnerStatus == 2))
+			{
+				true
+			} else false
+		}).transactionally)
+	}
+
 }

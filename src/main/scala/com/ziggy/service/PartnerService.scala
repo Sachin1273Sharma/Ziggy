@@ -43,12 +43,18 @@ import scala.util.{Failure, Success}
 		} yield partner
 	}
 
-	def cancelOrder(orderId : String): Unit  = {
-			dbService.cancelOrder(orderId)
+	def orderedDelivered(orderId: String): Future[Boolean] = {
+		for {
+			partnerId <- dbService.findOrderById(orderId) map {
+				case Some(order) => order.partnerId
+				case _ => None
+			}
+			resourceFreed <- if (partnerId.isDefined) {
+				dbService.orderDelivered(orderId, partnerId.get)
+			} else {
+				Future.successful(false)
+			}} yield (resourceFreed)
 	}
 
-	def orderedDelivered(orderId : String): Unit = {
-
-	}
 
 }

@@ -145,9 +145,9 @@ final class OrderTable(db: Database)(implicit ec: ExecutionContext) {
   def deleteAll: Future[Int] =
     db.run(orders.delete)
 
-	def cancelOrder(id : String) : Future[Int] =
-		db.run(orders.filter(_.id === id).map(_.status).update(OrderStatus.Cancelled))
+	def cancelOrder(id : String) : DBIO[Int] =
+		orders.filter(_.id === id).map(_.status).update(OrderStatus.Cancelled.toString)
 
 	def orderDelivered(id : String) : DBIO[Int] =
-		orders.filter(_.id === id).map(_.status).update(OrderStatus.Delivered)
+		orders.filter(_.id === id).map(_.status).update(OrderStatus.Delivered.toString)
 }
