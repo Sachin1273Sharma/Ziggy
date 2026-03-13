@@ -29,7 +29,7 @@ class AuthRoutes @Inject (val authController: AuthController,
           }
         },
         path("test") {
-          authenticateOAuth2Async[Customer]("Unauthorized",validateLoginCredentials) {
+          authenticateOAuth2Async[User]("Unauthorized",validateLoginCredentials) {
             customer  => get {
                 complete(StatusCodes.OK,s"Welcome ${customer.name}")
             }

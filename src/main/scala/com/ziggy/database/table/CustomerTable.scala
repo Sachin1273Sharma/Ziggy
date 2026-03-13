@@ -1,6 +1,6 @@
 package com.ziggy.database.table
 
-import com.ziggy.database.model.Customer
+import com.ziggy.database.model.User
 import com.ziggy.database.schema.CustomerSchema
 import slick.jdbc.PostgresProfile.api.*
 
@@ -23,24 +23,24 @@ final class CustomerTable(db: Database)(implicit ec: ExecutionContext) {
   def dropTableIfExists: Future[Unit] =
     db.run(customers.schema.dropIfExists)
 
-  def insert(customer: Customer): Future[UUID] = {
+  def insert(customer: User): Future[UUID] = {
     val customerToInsert = customer.copy(id = customer.id.orElse(Some(UUID.randomUUID())))
     db.run((customers += customerToInsert).map(_ => customerToInsert.id.get))
   }
 
-  def insertAll(values: Seq[Customer]): Future[Option[Int]] =
+  def insertAll(values: Seq[User]): Future[Option[Int]] =
     db.run(customers ++= values.map(value => value.copy(id = value.id.orElse(Some(UUID.randomUUID())))))
 
-  def findById(id: String): Future[Option[Customer]] =
+  def findById(id: String): Future[Option[User]] =
     db.run(customers.filter(_.id === UUID.fromString(id)).result.headOption)
 
-  def findByEmail(email: String): Future[Option[Customer]] =
+  def findByEmail(email: String): Future[Option[User]] =
     db.run(customers.filter(_.email === Option(email)).result.headOption)
 
-  def listAll: Future[Seq[Customer]] =
+  def listAll: Future[Seq[User]] =
     db.run(customers.sortBy(_.id.asc).result)
 
-  def update(id: UUID, customer: Customer): Future[Int] = {
+  def update(id: UUID, customer: User): Future[Int] = {
     val updatedCustomer = customer.copy(id = Some(id))
     db.run(customers.filter(_.id === id).update(updatedCustomer))
   }

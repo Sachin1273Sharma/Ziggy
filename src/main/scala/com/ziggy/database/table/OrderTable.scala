@@ -1,6 +1,6 @@
 package com.ziggy.database.table
 
-import com.ziggy.database.model.{Address, Customer, Order, OrderStatus, Restaurant}
+import com.ziggy.database.model.{Address, User, Order, OrderStatus, Restaurant}
 import com.ziggy.database.schema.{AddressSchema, CustomerAddressSchema, CustomerSchema, OrderSchema, ResturantScheme}
 import slick.jdbc.PostgresProfile.api.*
 
@@ -9,11 +9,11 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 final case class OrderRoutingContext(
-  order: Order,
-  customer: Customer,
-  customerAddress: Option[Address],
-  restaurant: Restaurant,
-  restaurantAddress: Option[Address]
+	                                    order: Order,
+	                                    customer: User,
+	                                    customerAddress: Option[Address],
+	                                    restaurant: Restaurant,
+	                                    restaurantAddress: Option[Address]
 )
 
 final class OrderTable(db: Database)(implicit ec: ExecutionContext) {

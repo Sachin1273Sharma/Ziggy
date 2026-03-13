@@ -1,12 +1,12 @@
 package com.ziggy.database.schema
 
-import com.ziggy.database.model.Customer
+import com.ziggy.database.model.User
 
 import java.time.Instant
 import java.util.UUID
 import slick.jdbc.PostgresProfile.api.*
 
-class CustomerSchema(tag: Tag) extends Table[Customer](tag, "customers") {
+class CustomerSchema(tag: Tag) extends Table[User](tag, "customers") {
   def id = column[UUID]("id", O.PrimaryKey)
   def name = column[Option[String]]("name")
   def email = column[Option[String]]("email")
@@ -33,7 +33,7 @@ class CustomerSchema(tag: Tag) extends Table[Customer](tag, "customers") {
     notes,
     createdAt,
     updatedAt
-  ).mapTo[Customer]
+  ).mapTo[User]
 }
 
 object CustomerSchema {

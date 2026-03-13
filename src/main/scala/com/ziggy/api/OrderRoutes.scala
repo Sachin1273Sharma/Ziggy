@@ -9,7 +9,7 @@ import org.apache.pekko.http.scaladsl.server.*
 import org.apache.pekko.util.Timeout
 import com.ziggy.actor.ActorProvider
 import com.ziggy.controller.OrderController
-import com.ziggy.database.model.{Customer, OrderRequest}
+import com.ziggy.database.model.{User, OrderRequest}
 import com.ziggy.service.{DbService, Delivered, OrderCreationFailed, PlaceOrder}
 import com.ziggy.utils.Logger
 import com.ziggy.utils.security.ZiggySecurity
@@ -30,7 +30,7 @@ class OrderRoutes @Inject()(
 	dbService)(ec) with JsonSupport with Logger {
 	val routes: Route = pathPrefix("order") {
 		Directives.concat(path("place") {
-			authenticateOAuth2Async[Customer]("Unauthorized", validateLoginCredentials) { customer => {
+			authenticateOAuth2Async[User]("Unauthorized", validateLoginCredentials) { customer => {
 				post {
 					entity(as[OrderRequest]) { order => {
 						log.info(s"Customer ${customer.name.getOrElse("")} \n order : ${order}")

@@ -22,7 +22,7 @@ final case class CustomerAddress(
                                   addressId: String
                                 )
 
-final case class Customer(
+final case class User(
                            id: Option[UUID] = None,
                            name: Option[String] = None,
                            email: Option[String] = None,

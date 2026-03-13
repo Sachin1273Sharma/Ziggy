@@ -1,6 +1,6 @@
 package com.ziggy.service
 
-import com.ziggy.database.model.{Customer, Order, Partner}
+import com.ziggy.database.model.{User, Order, Partner}
 import com.ziggy.database.table.{CustomerTable, OrderRoutingContext, OrderTable, PartnerTable}
 import slick.dbio.DBIO
 import slick.jdbc.PostgresProfile.api.*
@@ -16,15 +16,15 @@ import scala.concurrent.{ExecutionContext, Future}
 	                                  db: Database
                                   )(using ec: ExecutionContext) {
 
-	def findCustomerByEmail(email: String): Future[Option[Customer]] = {
+	def findCustomerByEmail(email: String): Future[Option[User]] = {
 		customerTable.findByEmail(email)
 	}
 
-	def findCustomerById(id: String): Future[Option[Customer]] = {
+	def findCustomerById(id: String): Future[Option[User]] = {
 		customerTable.findById(id)
 	}
 
-	def register(data: Customer): Future[UUID] = {
+	def register(data: User): Future[UUID] = {
 		customerTable.insert(data)
 	}
 
