@@ -96,6 +96,7 @@ final case class OrderItem(
 
 final case class Restaurant(
                             id: Option[String] = None,
+                            name : String ,
                             addressId: Option[String] = None,
                             joiningDate: Timestamp,
                             openingTime: Time,
@@ -103,6 +104,13 @@ final case class Restaurant(
                             isOpen: Boolean = false,
                             pinCodes :List[String]
                           )
+final case class AddRestaurant(
+	                              name : String,
+                               address: Address,
+                               openingTime : Time,
+                               closingTime : Time,
+                               isOpen : Boolean,
+                               pinCodes : List[String])
 
 enum UserType :
 			case CUSTOMER,DELIVERY_PARTNER,RESTAURANT_ADMIN,ZIGGY_CUSTOMER_SERVICE,ZIGGY_ADMIN_USER
