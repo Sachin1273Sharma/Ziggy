@@ -16,10 +16,7 @@ object Main {
     def main(args : Array[String]) : Unit = {
       val rootBehavior : Behavior[Nothing] = Behaviors.setup[Nothing]  {
         context => {
-	        val dbService =  new DbService()
-	        val partnerService = new PartnerService()
-	        val orderService = new OrderService()
-	        val delivery = context.spawn(Delivery(),"delivery")
+
           val restaurant = context.spawn(Restaurant(delivery),"restaurant")
           val customer = context.spawn(Customer(restaurant),"customer")
           Behaviors.empty
