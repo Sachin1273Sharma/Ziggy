@@ -111,6 +111,14 @@ final case class AddRestaurant(
                                closingTime : Time,
                                isOpen : Boolean,
                                pinCodes : List[String])
+final case class UpdateRestaurant(
+                                 name : Option[String] = None,
+                                 address : Option[String] = None,
+                                 openingTime : Option[Time]= None,
+                                 closingTime : Option[Time] = None,
+                                 isOpen : Option[Boolean] = None,
+                                 pincodes : Option[List[String]] = None
+                                 )
 
 enum UserType :
 			case CUSTOMER,DELIVERY_PARTNER,RESTAURANT_ADMIN,ZIGGY_CUSTOMER_SERVICE,ZIGGY_ADMIN_USER
