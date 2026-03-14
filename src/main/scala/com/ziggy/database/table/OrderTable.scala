@@ -1,7 +1,7 @@
 package com.ziggy.database.table
 
 import com.ziggy.database.model.{Address, User, Order, OrderStatus, Restaurant}
-import com.ziggy.database.schema.{AddressSchema, CustomerAddressSchema, CustomerSchema, OrderSchema, ResturantScheme}
+import com.ziggy.database.schema.{AddressSchema, CustomerAddressSchema, UserSchema, OrderSchema, ResturantScheme}
 import slick.jdbc.PostgresProfile.api.*
 
 import java.util.UUID
@@ -18,7 +18,7 @@ final case class OrderRoutingContext(
 
 final class OrderTable(db: Database)(implicit ec: ExecutionContext) {
   private val orders = OrderSchema.orders
-  private val customers = CustomerSchema.customers
+  private val customers = UserSchema.customers
   private val customerAddresses = CustomerAddressSchema.customerAddresses
   private val addresses = AddressSchema.addresses
   private val restaurants = ResturantScheme.restaurants

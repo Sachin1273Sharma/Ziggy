@@ -19,37 +19,19 @@ import scala.util.{Failure, Success}
 @Singleton
 class ZiggySecurity @Inject()(val dbService: DbService)(implicit ec : ExecutionContext) extends Jwt {
 
-  /**
-   * @param credentials Will provide token
-   *
-   */
-  def validateLoginCredentials(credentials: Credentials): Future[Option[User]]  = {
-    credentials match {
-      case Credentials.Provided(token) => {
-        val x = validateToken(token, AppConfig.getString("jwt.secret"))
-        x match {
-          case Right(value) => dbService.findCustomerById(value).map{
-            case Some(customer) => Some(customer)
-            case None => None
-          }
-          case Left(_) => Future.successful(None)
-        }
-      }
-    }
-  }
-
-	def authenticate: Directive1[User] = {
+	def authenticate(userType : Option[String] = None): Directive1[User] = {
 		optionalCookie("AUTH_TOKEN").flatMap {
-
 			case Some(token) =>
 				validateToken(token.value, AppConfig.getString("jwt.secret")) match {
 
 					case Right(value) =>
-						onSuccess(dbService.findCustomerById(value)).flatMap {
+						onSuccess(dbService.findUserById(value)).flatMap {
 
-							case Some(customer) =>
-								provide(customer)
-
+							case Some(user) =>
+								if(user.userType == userType.getOrElse(None)) {
+									provide(user)
+								} else reject(AuthenticationFailedRejection(CredentialsRejected,HttpChallenge("auth-layer",
+									"UnAuthorized")))
 							case None =>
 								reject(AuthenticationFailedRejection(
 									CredentialsRejected,

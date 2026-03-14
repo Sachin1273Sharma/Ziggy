@@ -6,7 +6,7 @@ import java.time.Instant
 import java.util.UUID
 import slick.jdbc.PostgresProfile.api.*
 
-class CustomerSchema(tag: Tag) extends Table[User](tag, "customers") {
+class UserSchema(tag: Tag) extends Table[User](tag, "users") {
   def id = column[UUID]("id", O.PrimaryKey)
   def name = column[Option[String]]("name")
   def email = column[Option[String]]("email")
@@ -36,6 +36,6 @@ class CustomerSchema(tag: Tag) extends Table[User](tag, "customers") {
   ).mapTo[User]
 }
 
-object CustomerSchema {
-  val customers = TableQuery[CustomerSchema]
+object UserSchema {
+  val customers = TableQuery[UserSchema]
 }

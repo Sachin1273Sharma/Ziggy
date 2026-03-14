@@ -9,7 +9,7 @@ import org.apache.pekko.http.scaladsl.server.*
 import org.apache.pekko.util.Timeout
 import com.ziggy.actor.ActorProvider
 import com.ziggy.controller.OrderController
-import com.ziggy.database.model.{User, OrderRequest}
+import com.ziggy.database.model.{OrderRequest, User, UserType}
 import com.ziggy.service.{DbService, Delivered, OrderCreationFailed, PlaceOrder}
 import com.ziggy.utils.Logger
 import com.ziggy.utils.security.ZiggySecurity
@@ -30,10 +30,10 @@ class OrderRoutes @Inject()(
 	dbService)(ec) with JsonSupport with Logger {
 	val routes: Route = pathPrefix("order") {
 		Directives.concat(path("place") {
-			authenticateOAuth2Async[User]("Unauthorized", validateLoginCredentials) { customer => {
+			authenticate(Some(UserType.CUSTOMER.toString)) { user => {
 				post {
 					entity(as[OrderRequest]) { order => {
-						log.info(s"Customer ${customer.name.getOrElse("")} \n order : ${order}")
+						log.info(s"Customer ${user.name.getOrElse("")} \n order : ${order}")
 
 						onComplete(orderController.placeOrder(order)) { case Success(OrderCreationFailed) => complete(
 							StatusCodes.InternalServerError,
@@ -48,8 +48,10 @@ class OrderRoutes @Inject()(
 		},
 			path("delivered" / Segment){
 				orderId => {
-					actors.deliveryActor ! Delivered(orderId)
-					complete(StatusCodes.NoContent)
+					authenticate(Some(UserType.DELIVERY_PARTNER.toString)) { user =>
+						actors.deliveryActor ! Delivered(orderId)
+						complete(StatusCodes.NoContent)
+					}
 				}
 			})
 	}

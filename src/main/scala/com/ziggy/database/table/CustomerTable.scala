@@ -1,7 +1,7 @@
 package com.ziggy.database.table
 
 import com.ziggy.database.model.User
-import com.ziggy.database.schema.CustomerSchema
+import com.ziggy.database.schema.UserSchema
 import slick.jdbc.PostgresProfile.api.*
 
 import scala.concurrent.ExecutionContext
@@ -9,7 +9,7 @@ import scala.concurrent.Future
 import java.util.UUID
 
 final class CustomerTable(db: Database)(implicit ec: ExecutionContext) {
-  private val customers = CustomerSchema.customers
+  private val customers = UserSchema.customers
 
   def createTable: Future[Unit] =
     db.run(customers.schema.create)

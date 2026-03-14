@@ -28,6 +28,7 @@ final case class User(
                            email: Option[String] = None,
                            passwordHash: Option[String] = None,
                            phoneNumber: Option[String] = None,
+                           userType : UserType,
                            isProMember: Option[Boolean] = None,
                            isActive: Option[Boolean] = None,
                            dateOfBirth: Option[String] = None,
@@ -102,6 +103,9 @@ final case class Restaurant(
                             isOpen: Boolean = false,
                             pinCodes :List[String]
                           )
+
+enum UserType :
+			case CUSTOMER,DELIVERY_PARTNER,RESTAURANT_ADMIN,ZIGGY_CUSTOMER_SERVICE,ZIGGY_ADMIN_USER
 
 
 

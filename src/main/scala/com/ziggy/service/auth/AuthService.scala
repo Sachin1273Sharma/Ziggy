@@ -16,7 +16,7 @@ import scala.util.*
 class AuthService @Inject(dbService: DbService,security : ZiggySecurity)(implicit ec : ExecutionContext) {
 
   def registerCustomer(data: RegisterRequest) : Future[Json]  = {
-    dbService.findCustomerByEmail(data.email).transformWith {
+    dbService.findUserByEmail(data.email).transformWith {
       case Success(response) => {
         response match {
           case Some(customer) => {
@@ -42,7 +42,7 @@ class AuthService @Inject(dbService: DbService,security : ZiggySecurity)(implici
   }
 
   def loginUser(data: LoginRequest): Future[(Boolean, String)] = {
-    dbService.findCustomerByEmail(data.email) map {
+    dbService.findUserByEmail(data.email) map {
       case Some(customer) => {
         if (PasswordHasher.checkPassword(data.password, customer.passwordHash.getOrElse(""))) {
           (true, security.createToken(customer.id.toString, AppConfig.getString("jwt.secret")))

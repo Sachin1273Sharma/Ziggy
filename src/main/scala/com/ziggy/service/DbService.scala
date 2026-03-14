@@ -16,11 +16,11 @@ import scala.concurrent.{ExecutionContext, Future}
 	                                  db: Database
                                   )(using ec: ExecutionContext) {
 
-	def findCustomerByEmail(email: String): Future[Option[User]] = {
+	def findUserByEmail(email: String): Future[Option[User]] = {
 		customerTable.findByEmail(email)
 	}
 
-	def findCustomerById(id: String): Future[Option[User]] = {
+	def findUserById(id: String): Future[Option[User]] = {
 		customerTable.findById(id)
 	}
 

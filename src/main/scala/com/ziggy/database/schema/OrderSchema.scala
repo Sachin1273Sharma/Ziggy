@@ -20,7 +20,7 @@ class OrderSchema(tag: Tag) extends Table[Order](tag, "orders") {
   def statusIndex = index("idx_orders_status", status)
   def partnerIdIndex = index("idx_orders_partner_id", partnerId)
 
-  def customerFk = foreignKey("fk_orders_customer_id", customerId, CustomerSchema.customers)(_.id)
+  def customerFk = foreignKey("fk_orders_customer_id", customerId, UserSchema.customers)(_.id)
 
   def * = (
     id.?,
