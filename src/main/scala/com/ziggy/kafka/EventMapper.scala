@@ -15,4 +15,22 @@ class EventMapper @Inject()(kafkaService : KafkaService) {
 		Future.successful("PUBLISHED")
 }
 
+	def suscribeMessage(topic: KAFKA_TOPICS, event: KAFKA_EVENTS, data: KAFKA_DATA):Future[String] = {
+		topic match {
+			case KAFKA_TOPICS
+				.RESTAURANTS => {}
+			case KAFKA_TOPICS
+				.PARTNER     => {}
+			case KAFKA_TOPICS
+				.CUSTOMER    => {}
+		}
+	}
+
+	def processRestrauntMessages(event : KAFKA_EVENTS,data : KAFKA_DATA) = {
+		 event match {
+			 case KAFKA_EVENTS.ADD_RESTAURANT => {}
+			 case KAFKA_EVENTS.UPDATE_RESTAURANT => {}
+		 }
+	}
+
 }
