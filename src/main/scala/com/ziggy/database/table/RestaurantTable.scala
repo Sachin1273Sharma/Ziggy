@@ -1,14 +1,17 @@
 package com.ziggy.database.table
 
-import com.ziggy.database.model.Restaurant
+import com.ziggy.database.model.{Address, Restaurant}
+import com.ziggy.database.schema.AddressSchema.addresses
 import com.ziggy.database.schema.ResturantScheme
 import slick.jdbc.PostgresProfile.api.*
 
 import java.util.UUID
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-final class ResturantTable(db: Database)(implicit ec: ExecutionContext) {
+@Singleton
+final class RestaurantTable@Inject()(db: Database)(implicit ec: ExecutionContext) {
   private val restaurants = ResturantScheme.restaurants
 
   def createTable: Future[Unit] =
@@ -23,9 +26,9 @@ final class ResturantTable(db: Database)(implicit ec: ExecutionContext) {
   def dropTableIfExists: Future[Unit] =
     db.run(restaurants.schema.dropIfExists)
 
-  def insert(resturant: Restaurant): Future[String] = {
+  def insert(resturant: Restaurant): DBIO[String] = {
     val resturantToInsert = resturant.copy(id = resturant.id.orElse(Some(UUID.randomUUID().toString)))
-    db.run((restaurants += resturantToInsert).map(_ => resturantToInsert.id.get))
+    (restaurants += resturantToInsert).map(_ => resturantToInsert.id.get)
   }
 
   def insertAll(values: Seq[Restaurant]): Future[Option[Int]] =
@@ -40,9 +43,9 @@ final class ResturantTable(db: Database)(implicit ec: ExecutionContext) {
   def listAll: Future[Seq[Restaurant]] =
     db.run(restaurants.sortBy(_.id.asc).result)
 
-  def update(id: String, resturant: Restaurant): Future[Int] = {
+  def update(id: String, resturant: Restaurant): DBIO[Int] = {
     val updatedResturant = resturant.copy(id = Some(id))
-    db.run(restaurants.filter(_.id === id).update(updatedResturant))
+    restaurants.filter(_.id === id).update(updatedResturant)
   }
 
   def updateOpenStatus(id: String, isOpen: Boolean): Future[Int] =
@@ -51,6 +54,12 @@ final class ResturantTable(db: Database)(implicit ec: ExecutionContext) {
   def delete(id: String): Future[Int] =
     db.run(restaurants.filter(_.id === id).delete)
 
-  def deleteAll: Future[Int] =
-    db.run(restaurants.delete)
+	def deleteAll: Future[Int] = {
+		db.run(restaurants.delete)
+	}
+
+	def findRestaurantWithAddress(restaurantId: String): Future[Option[(Restaurant, Address)]] = {
+		db.run(restaurants.join(addresses).on(_.addressId === _.id).filter(_._1.id === restaurantId)
+		                  .result.headOption)
+	}
 }

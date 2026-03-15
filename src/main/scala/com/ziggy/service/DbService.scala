@@ -1,7 +1,7 @@
 package com.ziggy.service
 
-import com.ziggy.database.model.{User, Order, Partner}
-import com.ziggy.database.table.{CustomerTable, OrderRoutingContext, OrderTable, PartnerTable}
+import com.ziggy.database.model.{Address, Order, Partner, Restaurant, User}
+import com.ziggy.database.table.{AddressTable, CustomerTable, OrderRoutingContext, OrderTable, PartnerTable, RestaurantTable}
 import slick.dbio.DBIO
 import slick.jdbc.PostgresProfile.api.*
 
@@ -13,6 +13,8 @@ import scala.concurrent.{ExecutionContext, Future}
 	                                  customerTable: CustomerTable,
 	                                  orderTable: OrderTable,
 	                                  partnerTable: PartnerTable,
+	                                  addressTable : AddressTable,
+	                                  restaurantTable : RestaurantTable,
 	                                  db: Database
                                   )(using ec: ExecutionContext) {
 
@@ -34,10 +36,12 @@ import scala.concurrent.{ExecutionContext, Future}
 	def createOrder(order: Order): Future[String] = {
 		orderTable.insert(order)
 	}
-	def findOrderById(orderId : String) : Future[Option[Order]] = {
+
+	def findOrderById(orderId: String): Future[Option[Order]] = {
 		orderTable.findById(orderId)
 	}
-	def cancelOrder(orderId : String): Future[Int] = {
+
+	def cancelOrder(orderId: String): Future[Int] = {
 		db.run(orderTable.cancelOrder(orderId))
 	}
 	/* Partner */
@@ -66,13 +70,13 @@ import scala.concurrent.{ExecutionContext, Future}
 		partnerTable.update(id, partner)
 	}
 
-  def assignPartnerOrder(id: String, orderId: String): Future[Int] = {
-    partnerTable.assignOrder(id, orderId)
-  }
+	def assignPartnerOrder(id: String, orderId: String): Future[Int] = {
+		partnerTable.assignOrder(id, orderId)
+	}
 
-  def clearPartnerOrder(id: String): Future[Int] = {
-    partnerTable.clearOrder(id)
-  }
+	def clearPartnerOrder(id: String): Future[Int] = {
+		partnerTable.clearOrder(id)
+	}
 
 	def deletePartner(id: String): Future[Int] = {
 		partnerTable.delete(id)
@@ -87,28 +91,55 @@ import scala.concurrent.{ExecutionContext, Future}
 		orderTable.findRoutingContext(orderId)
 	}
 
+	/*Restaurant */
+	def findRestaurantWithAddressByRestaurantId(restaurantId: String): Future[Option[(Restaurant, Address)]] = {
+		restaurantTable.findRestaurantWithAddress(restaurantId)
+	}
+
 	/* Transactional Queries */
 	def assignPartner(partnerId: String, orderId: String): Future[Boolean] = {
 		db.run((for {
-			partnerAssigned <- partnerTable.assignOrderAction(partnerId,orderId)
+			partnerAssigned <- partnerTable.assignOrderAction(partnerId, orderId)
 			orderAssigned <- orderTable.assignPartnerAction(orderId, partnerId)} yield {
-			if((partnerAssigned + orderAssigned) == 2)
-				{
-					true
-				} else false
-		}).transactionally)
-	}
-
-	def orderDelivered(orderId: String,partnerId : String): Future[Boolean] = {
-		db.run((for {
-			cancelOrder <- orderTable.cancelOrder(orderId)
-			updatePartnerStatus <- partnerTable.freePartner(partnerId)
-		} yield {
-			if ((cancelOrder + updatePartnerStatus == 2))
-			{
+			if ((partnerAssigned + orderAssigned) == 2) {
 				true
 			} else false
 		}).transactionally)
 	}
+
+	def orderDelivered(orderId: String, partnerId: String): Future[Boolean] = {
+		db.run((for {
+			cancelOrder <- orderTable.cancelOrder(orderId)
+			updatePartnerStatus <- partnerTable.freePartner(partnerId)
+		} yield {
+			if ((cancelOrder + updatePartnerStatus == 2)) {
+				true
+			} else false
+		}).transactionally)
+	}
+
+	def addRestaurant(address: Address, restaurant: Restaurant): Future[(Option[String], String)]
+	= {
+		db.run((for {
+			addressId <- addressTable.insert(address)
+			restaurantId <- restaurantTable.insert(restaurant)
+		} yield {
+			(addressId, restaurantId)
+		}).transactionally)
+	}
+
+	def updateRestaurantWithAddress(restaurant: Restaurant, address: Address): Future[String] = {
+		db.run((for {
+			isAddressUpdated <- addressTable.update(address.id.getOrElse(""), address)
+			isRestaurantUpdated <- restaurantTable.update(restaurant.id.getOrElse(""), restaurant)
+		} yield {
+			if ((isAddressUpdated + isRestaurantUpdated) >= 1) {
+				"UPDATED"
+			} else {
+				"NOT UPDATED"
+			}
+		}).transactionally)
+	}
+
 
 }

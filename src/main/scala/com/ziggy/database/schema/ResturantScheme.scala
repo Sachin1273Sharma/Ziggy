@@ -17,6 +17,9 @@ implicit val pincodeListMapper: JdbcType[List[String]] & BaseTypedType[List[Stri
 
   def id = column[String]("id", O.PrimaryKey)
 	def name  = column[String]("name")
+	def email = column[String]("email")
+	def phone = column[String]("phone")
+	def gstin = column[String]("gstin")
   def addressId = column[Option[String]]("address_id")
   def joiningDate = column[Timestamp]("joining_date")
   def openingTime = column[Time]("opening_time")
@@ -32,6 +35,10 @@ implicit val pincodeListMapper: JdbcType[List[String]] & BaseTypedType[List[Stri
 
   def * = (
     id.?,
+	  name,
+	  email,
+	  phone,
+	  gstin,
     addressId,
     joiningDate,
     openingTime,
