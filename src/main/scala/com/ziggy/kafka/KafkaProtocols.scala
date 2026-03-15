@@ -8,6 +8,8 @@ enum KAFKA_TOPICS(val value : String) :
 enum KAFKA_EVENTS(val value : String) :
 	case ADD_RESTAURANT extends KAFKA_EVENTS("add_restaurant")
 	case UPDATE_RESTAURANT extends KAFKA_EVENTS("update_restaurant")
+	case ADD_PARTNER extends KAFKA_EVENTS("add_partner")
+	case UPDATE_PARTNER extends KAFKA_EVENTS("update_partner")
 
 enum KAFKA_DATA(val value : String):
 	case NOTHING extends KAFKA_DATA("nothing")

@@ -46,7 +46,7 @@ import scala.concurrent.{ExecutionContext, Future}
 	}
 	/* Partner */
 
-	def createPartner(partner: Partner): Future[String] = {
+	def addPartner(partner: Partner): Future[String] = {
 		partnerTable.insert(partner)
 	}
 

@@ -1,8 +1,10 @@
 package com.ziggy.service
 
-import com.ziggy.database.model.Partner
+import com.ziggy.database.model.{AddPartner, Partner, PartnerVehicle, UpdatePartner}
 import com.ziggy.utils.Logger
 
+import java.time.Instant
+import java.util.UUID.randomUUID
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
@@ -54,6 +56,37 @@ import scala.util.{Failure, Success}
 			} else {
 				Future.successful(false)
 			}} yield (resourceFreed)
+	}
+
+	def addPartner(data: AddPartner): Future[String] = {
+		val user = data.partner.get
+		val partner = Partner(id = Some(randomUUID.toString),
+		                      name = user.name.getOrElse(""),
+		                      email = user.email.getOrElse(""), phoneNumber = user.phoneNumber
+		                                                                          .getOrElse(""),
+		                      vehicle = PartnerVehicle.valueOf(data.vehicle),
+		                      pinCodes = data.pinCodes,
+		                      createdAt = Some(Instant.now()),
+		                      updatedAt = Some(Instant.now())
+		                      )
+		dbService.addPartner(partner)
+	}
+
+	def updatePartner(data: UpdatePartner) = {
+		dbService.findUserById(data.id) map {
+			user => {
+				val partner = Partner(name = data.name.getOrElse(user.get.name.getOrElse("")), email =
+					data.email.getOrElse(user.get.email.getOrElse("")),
+				                      phoneNumber = data.phoneNumber.getOrElse(user.get.phoneNumber
+				                                                                   .getOrElse("")),
+				                      isAvailable
+				                      = data
+					                      .isAvailable.getOrElse(),
+				                      isOpenToService = data.isOpenToService, isEngagedInOrder = data
+						.isEngagedInOrder, pinCodes = data.pinCodes, vehicle = data.vehicle, currentOrderId =
+					                      data.currentOrderId)
+			}
+		}
 	}
 
 

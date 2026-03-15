@@ -43,15 +43,35 @@ final case class Partner(
 	email: String,
 	phoneNumber: String,
 	vehicle: PartnerVehicle,
-	city: String,
 	isOpenToService: Boolean = true,
-	isAvailable: Boolean = true,
+	isAvailable: Boolean = false,
 	isEngagedInOrder: Boolean = false,
 	currentOrderId: Option[String] = None,
 	createdAt: Option[Instant] = None,
 	updatedAt: Option[Instant] = None,
 	pinCodes: List[String]
 )
+
+final case class AddPartner(
+	partner : Option[User] = None,
+	vehicle : String,
+	pinCodes : List[String]
+)
+final case class UpdatePartner(
+	id : String,
+	name : Option[String] = None,
+	email : Option[String] = None,
+	phoneNumber : Option[String] = None,
+	vehicle : Option[String] = None,
+	currentOrderId : Option[String] = None,
+	isOpenToService : Option[Boolean] = None,
+	isAvailable : Option[Boolean] = None,
+	isEngagedInOrder : Option[Boolean] = None,
+	pinCodes : Option[List[String]] = None
+)
+
+
+
 
 enum PartnerVehicle:
 	case Cycle, Bike

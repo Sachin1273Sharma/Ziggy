@@ -1,8 +1,8 @@
 package com.ziggy.kafka
 
 import com.ziggy.api.JsonSupport
-import com.ziggy.database.model.{AddRestaurant, UpdateRestaurant}
-import com.ziggy.service.RestaurantService
+import com.ziggy.database.model.{AddPartner, AddRestaurant, UpdatePartner, UpdateRestaurant}
+import com.ziggy.service.{PartnerService, RestaurantService}
 import io.circe.Json
 
 import javax.inject.{Inject, Singleton}
@@ -14,7 +14,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
 
 @Singleton
-class KafkaService @Inject()(restaurantService: RestaurantService, kafkaProducer: KafkaProducer)
+class KafkaService @Inject()(restaurantService: RestaurantService, kafkaProducer: KafkaProducer,
+                             partnerService : PartnerService)
                             (using ec : ExecutionContext)
 	extends
 	JsonSupport {
@@ -45,6 +46,22 @@ class KafkaService @Inject()(restaurantService: RestaurantService, kafkaProducer
 		result match {
 			case Right(value) => value
 			case _ => Future.failed(new Exception("Failed to update"))
+		}
+	}
+
+	def addPartner(data : KAFKA_DATA): Future[String] = {
+		val result = decode[AddPartner](data.value) map {
+			value => partnerService.addPartner(value)
+		}
+		result match {
+			case Right(value) => value
+			case _ => Future.failed(new Exception("Failed to Add"))
+		}
+	}
+
+	def updatePartner(data : KAFKA_DATA) = {
+		decode[UpdatePartner](data.value) map {
+			value => partnerService.updatePartner(data)
 		}
 	}
 

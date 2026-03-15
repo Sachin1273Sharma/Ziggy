@@ -1,6 +1,6 @@
 package com.ziggy.api
 
-import com.ziggy.database.model.{AddRestaurant, UpdateRestaurant, UserType}
+import com.ziggy.database.model.{AddPartner, AddRestaurant, UpdateRestaurant, UserType}
 import com.ziggy.kafka.{EventMapper, KAFKA_EVENTS, KAFKA_TOPICS, KafkaService}
 import com.ziggy.service.{DbService, RestaurantService}
 import com.ziggy.utils.security.ZiggySecurity
@@ -32,8 +32,7 @@ class UtilRoutes @Inject()(dbService : DbService,
 					}
 				}
 			} ~
-				path("update" / "restaurant" / Segment) {
-					restaurantId => {
+				path("update" / "restaurant")  {
 						authenticate(Some(UserType.RESTAURANT_ADMIN.toString)) {
 							user => {
 								entity(as[UpdateRestaurant]) {
@@ -48,7 +47,19 @@ class UtilRoutes @Inject()(dbService : DbService,
 								}
 							}
 						}
+					} ~
+			path("add" / "partner"){
+				authenticate(Some(UserType.DELIVERY_PARTNER.toString)){
+					user => {
+						entity(as[AddPartner]) {
+							partner => {
+								 partner.copy(partner = Some(user))
+								eventMapper.sendMessage(KAFKA_TOPICS.PARTNER, KAFKA_EVENTS.ADD_PARTNER,Some(partner
+									.toString))
+							}
+						}
 					}
 				}
+			}
 		}
 }
