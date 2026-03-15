@@ -10,7 +10,7 @@ import scala.concurrent.Future
 
 @Singleton
 final class AddressTable @Inject(db: Database)(implicit ec: ExecutionContext) {
-  private val addresses = AddressSchema.addresses
+   val addresses = AddressSchema.addresses
 
   def createTable: Future[Unit] =
     db.run(addresses.schema.create)
@@ -24,10 +24,10 @@ final class AddressTable @Inject(db: Database)(implicit ec: ExecutionContext) {
   def dropTableIfExists: Future[Unit] =
     db.run(addresses.schema.dropIfExists)
 
-  def insert(address: Address): Future[String] = {
-    val addressToInsert = address.copy(id = address.id)
-    db.run((addresses += addressToInsert).map(_ => addressToInsert.id))
-  }
+
+	def insert(address: Address)(implicit ec: ExecutionContext): DBIO[Option[String]] = {
+		(addresses += address).map(_ => address.id)
+	}
 
   def insertAll(values: Seq[Address]): Future[Option[Int]] =
     db.run(addresses ++= values.map(address => address.copy(id = address.id)))
@@ -38,9 +38,9 @@ final class AddressTable @Inject(db: Database)(implicit ec: ExecutionContext) {
   def listAll: Future[Seq[Address]] =
     db.run(addresses.sortBy(_.id.asc).result)
 
-  def update(id: String, address: Address): Future[Int] = {
-    val updatedAddress = address.copy(id = id)
-    db.run(addresses.filter(_.id === id).update(updatedAddress))
+  def update(id: String, address: Address): DBIO[Int] = {
+    val updatedAddress = address.copy(id = Some(id))
+    addresses.filter(_.id === id).update(updatedAddress)
   }
 
   def delete(id: String): Future[Int] =
