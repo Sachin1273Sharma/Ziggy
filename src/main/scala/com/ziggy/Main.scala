@@ -1,12 +1,10 @@
 package com.ziggy
 
-import org.apache.pekko.actor.typed.{ActorRef, ActorSystem, Behavior}
+import org.apache.pekko.actor.typed.{ActorSystem, Behavior}
 import org.apache.pekko.actor.typed.scaladsl.Behaviors
 import org.apache.pekko.http.scaladsl.Http
 import com.google.inject.Guice
-import com.ziggy.actor.{ActorProvider, Delivery, Restaurant}
 import com.ziggy.api.routes
-import com.ziggy.service.{DeliveryCommand, RestaurantCommand}
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 import scala.io.StdIn
@@ -26,14 +24,6 @@ def main(args: Array[String]): Unit = {
     system.executionContext
 
   val injector = Guice.createInjector(new AppModule(system))
-   val deliveryInjector: Delivery = injector.getInstance(classOf[Delivery])
-  val deliveryActor: ActorRef[DeliveryCommand] =
-    system.systemActorOf(deliveryInjector.behavior, "delivery")
-   val restaurantInjector = injector.getInstance(classOf[Restaurant])
-  val restaurantActor: ActorRef[RestaurantCommand] = system.systemActorOf(
-    restaurantInjector.behavior(),
-    "restaurant")
-
   val appRoutes = injector.getInstance(classOf[routes])
 
   val bindingFuture =
