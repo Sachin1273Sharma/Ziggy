@@ -4,11 +4,13 @@ import com.ziggy.database.model.Item
 import com.ziggy.database.schema.ItemScheme
 import slick.jdbc.PostgresProfile.api.*
 
+import java.sql.Timestamp
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import java.util.UUID
-
-final class ItemTable(db: Database)(implicit ec: ExecutionContext) {
+import javax.inject.{Inject, Singleton}
+@Singleton
+final class ItemTable @Inject(db: Database)(implicit ec: ExecutionContext) {
   private val items = ItemScheme.items
 
   def createTable: Future[Unit] =
@@ -34,6 +36,9 @@ final class ItemTable(db: Database)(implicit ec: ExecutionContext) {
   def findById(id: String): Future[Option[Item]] =
     db.run(items.filter(_.id === id).result.headOption)
 
+  def findByRestaurantIdAndItemId(restaurantId: String, itemId: String): Future[Option[Item]] =
+    db.run(items.filter(item => item.restaurantId === restaurantId && item.id === itemId).result.headOption)
+
   def findByRestaurantId(restaurantId: String): Future[Seq[Item]] =
     db.run(items.filter(_.restaurantId === restaurantId).sortBy(_.id.asc).result)
 
@@ -41,7 +46,7 @@ final class ItemTable(db: Database)(implicit ec: ExecutionContext) {
     db.run(items.sortBy(_.id.asc).result)
 
   def update(id: String, item: Item): Future[Int] = {
-    val updatedItem = item.copy(id = Some(id))
+    val updatedItem = item.copy(id = Some(id), updatedAt = Some(new Timestamp(System.currentTimeMillis())))
     db.run(items.filter(_.id === id).update(updatedItem))
   }
 

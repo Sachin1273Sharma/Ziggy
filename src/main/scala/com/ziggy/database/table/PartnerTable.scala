@@ -1,15 +1,20 @@
 package com.ziggy.database.table
 
-import com.ziggy.database.model.{Partner, PartnerVehicle}
-import com.ziggy.database.schema.PartnerSchema
+import com.ziggy.database.model.{Partner, PartnerVehicle, User}
+import com.ziggy.database.schema.{PartnerSchema, UserSchema}
+import com.ziggy.database.schema.UserSchema.users
+import slick.dbio.Effect
 import slick.jdbc.PostgresProfile.api.*
+import slick.lifted.TableQuery.Extract
+import slick.sql.SqlAction
 
 import java.time.Instant
 import java.util.UUID
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-
-final class PartnerTable(db: Database)(implicit ec: ExecutionContext) {
+@Singleton
+final class PartnerTable @Inject(db: Database)(implicit ec: ExecutionContext) {
 	import PartnerSchema.given
 
 	private val partners = PartnerSchema.partners
@@ -35,6 +40,9 @@ final class PartnerTable(db: Database)(implicit ec: ExecutionContext) {
 		)
 
 		db.run((partners += partnerToInsert).map(_ => partnerToInsert.id.get))
+	}
+	def findPartnerWithUserByRefId(refId : String): Future[Option[(Partner,User)]]  = {
+		db.run(partners.join(users).on(_.id === _.refId).filter(_._1.id === refId).result.headOption)
 	}
 
 	def insertAll(values: Seq[Partner]): Future[Option[Int]] = {
@@ -79,6 +87,15 @@ final class PartnerTable(db: Database)(implicit ec: ExecutionContext) {
 		)
 
 		db.run(partners.filter(_.id === id).update(updatedPartner))
+	}
+
+	def updateAction(id: String, partner: Partner): DBIO[Int] = {
+		val updatedPartner = partner.copy(
+			id = Some(id),
+			updatedAt = Some(Instant.now())
+			)
+
+		partners.filter(_.id === id).update(updatedPartner)
 	}
 
 	def updateAvailability(id: String, isAvailable: Boolean): Future[Int] =

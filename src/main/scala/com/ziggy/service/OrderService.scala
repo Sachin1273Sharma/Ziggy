@@ -12,29 +12,31 @@ import scala.util.{Success, Try}
 
 
 class OrderService @Inject()(dbService: DbService)
-                            (using ec: ExecutionContext)
+  (using ec: ExecutionContext)
   extends Logger {
 
 
   def createOrder(data: OrderRequest): Future[Either[Boolean, String]] = {
-    val order = Order(id = Some(UUID.randomUUID.toString),
+    val order = Order(
+      id = Some(UUID.randomUUID.toString),
       customerId = data.customerId,
       restaurantId = data.restaurantId,
       totalAmount = data.total,
       status = Created
-    )
+      )
     dbService.createOrder(order).map(Right(_)).
-      recover {
-        case ex : Exception => Left(false)
-      }
+             recover {
+               case ex: Exception => Left(false)
+             }
   }
 
-	def cancelOrder(orderId: String): Future[Boolean] = {
-		dbService.cancelOrder(orderId).transform { case 1 => Success(true)
-		case 0 => Success(false)
-		case _ => Success(false)
-		}
-	}
+  def cancelOrder(orderId: String): Future[Boolean] = {
+    dbService.cancelOrder(orderId).transform {
+      case Success(1) => Success(true)
+      case Success(0) => Success(false)
+      case _ => Success(false)
+    }
+  }
 
 
 }

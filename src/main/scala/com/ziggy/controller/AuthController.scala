@@ -9,7 +9,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class AuthController@Inject (actors : ActorProvider,
+class AuthController@Inject (
                              authService : AuthService) (using ec : ExecutionContext)
 {
   def registerCustomer(data: RegisterRequest): Future[Json] = {

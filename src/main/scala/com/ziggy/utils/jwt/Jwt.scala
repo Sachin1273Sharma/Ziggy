@@ -46,8 +46,8 @@ class Jwt {
       }
       else {
         val dataToSign = parts(0) + parts(1)
-        val sign = sign(dataToSign, secret)
-        if (parts(2) != sign) {
+        val signed = sign(dataToSign, secret)
+        if (parts(2) != signed) {
           return Left(false)
         }
       }

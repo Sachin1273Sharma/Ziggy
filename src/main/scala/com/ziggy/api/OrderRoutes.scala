@@ -21,38 +21,50 @@ import scala.util.Success
 
 @Singleton
 class OrderRoutes @Inject()(
-	                           actors: ActorProvider,
-	                           dbService: DbService,
-	                           orderController: OrderController
-                           )(
-	                                      using ec: ExecutionContext
-                                      )(using timeout: Timeout)(using scheduler: Scheduler) extends ZiggySecurity(
-	dbService)(ec) with JsonSupport with Logger {
+	actors: ActorProvider,
+	dbService: DbService,
+	orderController: OrderController
+)
+	(
+		using ec: ExecutionContext
+	)
+	(using timeout: Timeout)
+	(using scheduler: Scheduler) extends ZiggySecurity(
+	dbService
+	)(ec) with JsonSupport with Logger {
 	val routes: Route = pathPrefix("order") {
-		Directives.concat(path("place") {
-			authenticate(Some(UserType.CUSTOMER.toString)) { user => {
-				post {
-					entity(as[OrderRequest]) { order => {
-						log.info(s"Customer ${user.name.getOrElse("")} \n order : ${order}")
+		Directives.concat(
+			path("place") {
+				authenticate(Some(UserType.CUSTOMER.toString)) { user => {
+					post {
+						entity(as[OrderRequest]) { order => {
+							log.info(s"Customer ${user.name.getOrElse("")} \n order : ${order}")
 
-						onComplete(orderController.placeOrder(order)) { case Success(OrderCreationFailed) => complete(
-							StatusCodes.InternalServerError,
-							"Something went wrong. Please try again later")
-						case _ => complete(StatusCodes.OK, "Order Created")
+							onComplete(orderController
+								           .placeOrder(order)
+							           ) { case Success(OrderCreationFailed) => complete(
+								StatusCodes.InternalServerError,
+								"Something went wrong. Please try again later"
+								)
+							case _ => complete(
+								StatusCodes.OK,
+								"Order Created"
+								)
+							}
+						}
 						}
 					}
-					}
 				}
-			}
-			}
-		},
-			path("delivered" / Segment){
+				}
+			},
+			path("delivered" / Segment) {
 				orderId => {
 					authenticate(Some(UserType.DELIVERY_PARTNER.toString)) { user =>
 						actors.deliveryActor ! Delivered(orderId)
 						complete(StatusCodes.NoContent)
 					}
 				}
-			})
+			}
+			)
 	}
 }

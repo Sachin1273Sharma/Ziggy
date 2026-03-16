@@ -31,12 +31,13 @@ class AuthService @Inject(dbService: DbService,security : ZiggySecurity)(implici
     }
   }
 
-  private def register(data: RegisterRequest) : Future[UUID] = {
+  private def register(data: RegisterRequest) : Future[String] = {
     val registrationData = User(
       name = data.name,
       email = Some(data.email),
       isActive = Some(true),
-      passwordHash = Some(PasswordHasher.hashPassword(data.password))
+      passwordHash = Some(PasswordHasher.hashPassword(data.password)),
+      userType = UserType.valueOf(data.userType)
     )
     dbService.register(registrationData)
   }

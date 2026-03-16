@@ -8,7 +8,7 @@ import java.util.UUID
 class OrderSchema(tag: Tag) extends Table[Order](tag, "orders") {
 
   def id = column[String]("id", O.PrimaryKey)
-  def customerId = column[UUID]("customer_id")
+  def customerId = column[String]("customer_id")
   def restaurantId = column[String]("restaurant_id")
   def isPartnerAssigned = column[Boolean]("is_partner_assigned")
   def partnerId = column[Option[String]]("partner_id")
@@ -20,7 +20,7 @@ class OrderSchema(tag: Tag) extends Table[Order](tag, "orders") {
   def statusIndex = index("idx_orders_status", status)
   def partnerIdIndex = index("idx_orders_partner_id", partnerId)
 
-  def customerFk = foreignKey("fk_orders_customer_id", customerId, UserSchema.customers)(_.id)
+  def customerFk = foreignKey("fk_orders_customer_id", customerId, UserSchema.users)(_.id)
 
   def * = (
     id.?,

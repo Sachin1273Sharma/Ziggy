@@ -23,7 +23,7 @@ final case class CustomerAddress(
 )
 
 final case class User(
-	id: Option[UUID] = None,
+	id: Option[String] = None,
 	name: Option[String] = None,
 	email: Option[String] = None,
 	passwordHash: Option[String] = None,
@@ -34,7 +34,8 @@ final case class User(
 	dateOfBirth: Option[String] = None,
 	notes: Option[String] = None,
 	createdAt: Option[Instant] = None,
-	updatedAt: Option[Instant] = None
+	updatedAt: Option[Instant] = None,
+	refId : Option[String] = None
 )
 
 final case class Partner(
@@ -43,9 +44,8 @@ final case class Partner(
 	email: String,
 	phoneNumber: String,
 	vehicle: PartnerVehicle,
-	city: String,
 	isOpenToService: Boolean = true,
-	isAvailable: Boolean = true,
+	isAvailable: Boolean = false,
 	isEngagedInOrder: Boolean = false,
 	currentOrderId: Option[String] = None,
 	createdAt: Option[Instant] = None,
@@ -53,10 +53,32 @@ final case class Partner(
 	pinCodes: List[String]
 )
 
+final case class AddPartner(
+	partner : Option[User] = None,
+	vehicle : String,
+	pinCodes : List[String]
+)
+final case class UpdatePartner(
+	id : String,
+	name : Option[String] = None,
+	email : Option[String] = None,
+	phoneNumber : Option[String] = None,
+	vehicle : Option[String] = None,
+	currentOrderId : Option[String] = None,
+	isOpenToService : Option[Boolean] = None,
+	isAvailable : Option[Boolean] = None,
+	isEngagedInOrder : Option[Boolean] = None,
+	pinCodes : Option[List[String]] = None
+)
+
+
+
+
 enum PartnerVehicle:
 	case Cycle, Bike
 
-final case class RegisterRequest(email: String, password: String, name: Option[String])
+final case class RegisterRequest(email: String, password: String, name: Option[String],userType 
+: String)
 
 final case class LoginRequest(email: String, password: String)
 
@@ -82,6 +104,35 @@ final case class Item(
 	quantityLeft: Int,
 	createdAt: Timestamp,
 	updatedAt: Option[Timestamp] = None
+)
+
+final case class AddItem(
+	name: String,
+	price: Double,
+	rating: Double,
+	isAvailable: Boolean,
+	quick: Boolean = false,
+	quantityLeft: Int
+)
+
+final case class UpdateItem(
+	name: Option[String] = None,
+	price: Option[Double] = None,
+	rating: Option[Double] = None,
+	isAvailable: Option[Boolean] = None,
+	quick: Option[Boolean] = None,
+	quantityLeft: Option[Int] = None
+)
+
+final case class AddItemEvent(
+	restaurantId: String,
+	item: AddItem
+)
+
+final case class UpdateItemEvent(
+	restaurantId: String,
+	itemId: String,
+	item: UpdateItem
 )
 
 
@@ -131,8 +182,8 @@ final case class UpdateRestaurant(
 	pincodes: Option[List[String]] = None
 )
 
-enum UserType:
-	case CUSTOMER, DELIVERY_PARTNER, RESTAURANT_ADMIN, ZIGGY_CUSTOMER_SERVICE, ZIGGY_ADMIN_USER
+enum UserType :
+			case CUSTOMER,DELIVERY_PARTNER,RESTAURANT_ADMIN,ZIGGY_CUSTOMER_SERVICE,ZIGGY_ADMIN_USER
 
 
 

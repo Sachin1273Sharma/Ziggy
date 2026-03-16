@@ -5,10 +5,11 @@ import com.ziggy.database.schema.OrderItemSchema
 import slick.jdbc.PostgresProfile.api.*
 
 import java.util.UUID
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-
-final class OrderItemTable(db: Database)(implicit ec: ExecutionContext) {
+@Singleton
+final class OrderItemTable @Inject(db: Database)(implicit ec: ExecutionContext) {
   private val orderItems = OrderItemSchema.orderItems
 
   def createTable: Future[Unit] =

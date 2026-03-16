@@ -1,7 +1,7 @@
 package com.ziggy.service
 
-import com.ziggy.database.model.{Address, Order, Partner, Restaurant, User}
-import com.ziggy.database.table.{AddressTable, CustomerTable, OrderRoutingContext, OrderTable, PartnerTable, RestaurantTable}
+import com.ziggy.database.model.{Address, Item, Order, Partner, Restaurant, User}
+import com.ziggy.database.table.{AddressTable, ItemTable, UserTable, OrderRoutingContext, OrderTable, PartnerTable, RestaurantTable}
 import slick.dbio.DBIO
 import slick.jdbc.PostgresProfile.api.*
 
@@ -9,25 +9,27 @@ import java.util.UUID
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-@Singleton class DbService @Inject(
-	                                  customerTable: CustomerTable,
-	                                  orderTable: OrderTable,
-	                                  partnerTable: PartnerTable,
-	                                  addressTable : AddressTable,
-	                                  restaurantTable : RestaurantTable,
-	                                  db: Database
-                                  )(using ec: ExecutionContext) {
+@Singleton
+class DbService @Inject(
+	userTable: UserTable,
+	orderTable: OrderTable,
+	partnerTable: PartnerTable,
+	addressTable: AddressTable,
+	restaurantTable: RestaurantTable,
+	itemTable: ItemTable,
+	db: Database
+)(using ec: ExecutionContext) {
 
 	def findUserByEmail(email: String): Future[Option[User]] = {
-		customerTable.findByEmail(email)
+		userTable.findByEmail(email)
 	}
 
 	def findUserById(id: String): Future[Option[User]] = {
-		customerTable.findById(id)
+		userTable.findById(id)
 	}
 
-	def register(data: User): Future[UUID] = {
-		customerTable.insert(data)
+	def register(data: User): Future[String] = {
+		userTable.insert(data)
 	}
 
 
@@ -46,7 +48,7 @@ import scala.concurrent.{ExecutionContext, Future}
 	}
 	/* Partner */
 
-	def createPartner(partner: Partner): Future[String] = {
+	def addPartner(partner: Partner): Future[String] = {
 		partnerTable.insert(partner)
 	}
 
@@ -70,8 +72,8 @@ import scala.concurrent.{ExecutionContext, Future}
 		partnerTable.update(id, partner)
 	}
 
-	def assignPartnerOrder(id: String, orderId: String): Future[Int] = {
-		partnerTable.assignOrder(id, orderId)
+	def assignPartnerOrder(id: String, orderId: String): DBIO[Int] = {
+		partnerTable.assignOrderAction(id, orderId)
 	}
 
 	def clearPartnerOrder(id: String): Future[Int] = {
@@ -85,6 +87,9 @@ import scala.concurrent.{ExecutionContext, Future}
 	def findNearbyAvailablePartners(pincode: String): Future[Seq[Partner]] = {
 		partnerTable.findAvailablePartners(pincode)
 	}
+	def findPartnerWithUserByRefId(refId : String): Future[Option[(Partner, User)]] = {
+		partnerTable.findPartnerWithUserByRefId(refId)
+	}
 
 	/* order */
 	def findOrderAndRestaurantAddressByOrderId(orderId: String): Future[Option[OrderRoutingContext]] = {
@@ -94,6 +99,18 @@ import scala.concurrent.{ExecutionContext, Future}
 	/*Restaurant */
 	def findRestaurantWithAddressByRestaurantId(restaurantId: String): Future[Option[(Restaurant, Address)]] = {
 		restaurantTable.findRestaurantWithAddress(restaurantId)
+	}
+
+	def addItem(item: Item): Future[String] = {
+		itemTable.insert(item)
+	}
+
+	def findItemByRestaurantIdAndItemId(restaurantId: String, itemId: String): Future[Option[Item]] = {
+		itemTable.findByRestaurantIdAndItemId(restaurantId, itemId)
+	}
+
+	def updateItem(itemId: String, item: Item): Future[Int] = {
+		itemTable.update(itemId, item)
 	}
 
 	/* Transactional Queries */
@@ -128,17 +145,37 @@ import scala.concurrent.{ExecutionContext, Future}
 		}).transactionally)
 	}
 
-	def updateRestaurantWithAddress(restaurant: Restaurant, address: Address): Future[String] = {
+	def updateRestaurantWithAddress(restaurant: Restaurant, address: Address): Future[Boolean] = {
 		db.run((for {
 			isAddressUpdated <- addressTable.update(address.id.getOrElse(""), address)
 			isRestaurantUpdated <- restaurantTable.update(restaurant.id.getOrElse(""), restaurant)
 		} yield {
 			if ((isAddressUpdated + isRestaurantUpdated) >= 1) {
-				"UPDATED"
+				true
 			} else {
-				"NOT UPDATED"
+				false
 			}
 		}).transactionally)
+	}
+
+	def updatePartnerWithUser(
+		partnerId: String,
+		userId: String,
+		partner: Partner,
+		user: User
+	): Future[Boolean] = {
+		db.run((for {
+			isPartnerUpdated <- partnerTable.updateAction(
+			partnerId,
+			partner
+			)
+			isUserUpdated <- userTable.updateAction(
+			userId,
+			user
+		)} yield {
+			if (isPartnerUpdated + isUserUpdated == 2) true else false
+		}).transactionally
+		       )
 	}
 
 
