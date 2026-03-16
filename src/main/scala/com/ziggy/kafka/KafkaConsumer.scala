@@ -47,11 +47,11 @@ import scala.concurrent.duration.DurationInt
 		                                                                  .CUSTOMER
 		                                                                  .value))
 	        .mapAsync(5) { msg =>
-		        val result = eventMapper.suscribeMessage(KAFKA_TOPICS.valueOf(msg.record
-		                                                                         .topic()),
-		                                                 KAFKA_EVENTS.valueOf(msg.record
+		        val result = eventMapper.subscribeMessage(KAFKA_TOPICS.valueOf(msg.record
+		                                                                          .topic()),
+		                                                  KAFKA_EVENTS.valueOf(msg.record
 		                                                                         .key()),
-		                                                 KAFKA_DATA.valueOf(msg.record
+		                                                  KAFKA_DATA.valueOf(msg.record
 		                                                                       .value()))
 		        result.map(_ => msg._2)
 	        }.withAttributes(ActorAttributes.supervisionStrategy(supervise)).runWith(Committer.sink
