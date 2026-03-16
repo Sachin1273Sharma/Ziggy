@@ -1,11 +1,11 @@
 package com.ziggy.database.table
 
-import com.ziggy.database.model.{Address, User, Order, OrderStatus, Restaurant}
-import com.ziggy.database.schema.{AddressSchema, CustomerAddressSchema, UserSchema, OrderSchema,
-	ResturantScheme}
+import com.ziggy.database.model.{Address, Order, OrderStatus, Restaurant, User}
+import com.ziggy.database.schema.{AddressSchema, CustomerAddressSchema, OrderSchema, ResturantScheme, UserSchema}
 import slick.jdbc.PostgresProfile.api.*
 
 import java.util.UUID
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -16,8 +16,8 @@ final case class OrderRoutingContext(
 	restaurant: Restaurant,
 	restaurantAddress: Option[Address]
 )
-
-final class OrderTable(db: Database)
+@Singleton
+final class OrderTable@Inject()(db: Database)
 	(implicit ec: ExecutionContext) {
 	private val orders = OrderSchema.orders
 	private val customers = UserSchema.users

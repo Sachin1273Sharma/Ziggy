@@ -10,10 +10,11 @@ import slick.sql.SqlAction
 
 import java.time.Instant
 import java.util.UUID
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-
-final class PartnerTable(db: Database)(implicit ec: ExecutionContext) {
+@Singleton
+final class PartnerTable @Inject(db: Database)(implicit ec: ExecutionContext) {
 	import PartnerSchema.given
 
 	private val partners = PartnerSchema.partners

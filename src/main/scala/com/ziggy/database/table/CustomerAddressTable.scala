@@ -5,10 +5,14 @@ import com.ziggy.database.schema.CustomerAddressSchema
 import slick.jdbc.PostgresProfile.api.*
 
 import java.util.UUID
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-
-final class CustomerAddressTable(db: Database)(implicit ec: ExecutionContext) {
+@Singleton
+final class
+CustomerAddressTable @Inject(
+  db: Database
+)(implicit ec: ExecutionContext) {
   private val customerAddresses = CustomerAddressSchema.customerAddresses
 
   def insert(customerAddress: CustomerAddress): Future[String] = {

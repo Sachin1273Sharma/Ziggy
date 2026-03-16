@@ -8,8 +8,9 @@ import java.sql.Timestamp
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import java.util.UUID
-
-final class ItemTable(db: Database)(implicit ec: ExecutionContext) {
+import javax.inject.{Inject, Singleton}
+@Singleton
+final class ItemTable @Inject(db: Database)(implicit ec: ExecutionContext) {
   private val items = ItemScheme.items
 
   def createTable: Future[Unit] =

@@ -7,8 +7,9 @@ import slick.jdbc.PostgresProfile.api.*
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import java.util.UUID
-
-final class UserTable(db: Database)
+import javax.inject.{Inject, Singleton}
+@Singleton
+final class UserTable @Inject(db: Database)
 	(implicit ec: ExecutionContext) {
 	private val users = UserSchema.users
 
