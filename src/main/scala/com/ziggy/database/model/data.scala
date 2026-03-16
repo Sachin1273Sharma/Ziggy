@@ -77,7 +77,8 @@ final case class UpdatePartner(
 enum PartnerVehicle:
 	case Cycle, Bike
 
-final case class RegisterRequest(email: String, password: String, name: Option[String])
+final case class RegisterRequest(email: String, password: String, name: Option[String],userType 
+: String)
 
 final case class LoginRequest(email: String, password: String)
 

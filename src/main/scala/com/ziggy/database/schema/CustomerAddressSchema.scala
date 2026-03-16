@@ -8,7 +8,7 @@ import java.util.UUID
 class CustomerAddressSchema(tag: Tag) extends Table[CustomerAddress](tag, "customer_addresses") {
 
   def id = column[String]("id", O.PrimaryKey)
-  def customerId = column[UUID]("customer_id")
+  def customerId = column[String]("customer_id")
   def addressId = column[String]("address_id")
 
   def customerIdIndex = index("idx_customer_addresses_customer_id", customerId)

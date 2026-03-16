@@ -6,7 +6,7 @@ import com.ziggy.database.model.OrderRequest
 
 sealed trait RestaurantCommand
 
-final case class PlaceOrder(details : OrderRequest, customerRef : ActorRef[CustomerCommand], replyTo
+final case class PlaceOrder(details : OrderRequest, replyTo
 : ActorRef[RestaurantCommand]) extends RestaurantCommand
 final case class OrderPrepared(item : String, customerRef : ActorRef[CustomerCommand]) extends RestaurantCommand
 final case class PartnerAssigned(orderId : String) extends RestaurantCommand

@@ -72,8 +72,8 @@ class DbService @Inject(
 		partnerTable.update(id, partner)
 	}
 
-	def assignPartnerOrder(id: String, orderId: String): Future[Int] = {
-		partnerTable.assignOrder(id, orderId)
+	def assignPartnerOrder(id: String, orderId: String): DBIO[Int] = {
+		partnerTable.assignOrderAction(id, orderId)
 	}
 
 	def clearPartnerOrder(id: String): Future[Int] = {

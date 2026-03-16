@@ -1,51 +1,51 @@
-package com.ziggy.database.table
-
-import com.ziggy.database.model.Address
-import com.ziggy.database.schema.AddressSchema
-import slick.jdbc.PostgresProfile.api.*
-
-import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
-
-@Singleton
-final class AddressTable @Inject(db: Database)(implicit ec: ExecutionContext) {
-   val addresses = AddressSchema.addresses
-
-  def createTable: Future[Unit] =
-    db.run(addresses.schema.create)
-
-  def createTableIfNotExists: Future[Unit] =
-    db.run(addresses.schema.createIfNotExists)
-
-  def dropTable: Future[Unit] =
-    db.run(addresses.schema.drop)
-
-  def dropTableIfExists: Future[Unit] =
-    db.run(addresses.schema.dropIfExists)
-
-
-	def insert(address: Address)(implicit ec: ExecutionContext): DBIO[Option[String]] = {
+	package com.ziggy.database.table
+	
+	import com.ziggy.database.model.Address
+	import com.ziggy.database.schema.AddressSchema
+	import slick.jdbc.PostgresProfile.api.*
+	
+	import javax.inject.{Inject, Singleton}
+	import scala.concurrent.ExecutionContext
+	import scala.concurrent.Future
+	
+	@Singleton
+	final class AddressTable @Inject(db: Database)(implicit ec: ExecutionContext) {
+	 val addresses = AddressSchema.addresses
+	
+	def createTable: Future[Unit] =
+	  db.run(addresses.schema.create)
+	
+	def createTableIfNotExists: Future[Unit] =
+	  db.run(addresses.schema.createIfNotExists)
+	
+	def dropTable: Future[Unit] =
+	  db.run(addresses.schema.drop)
+	
+	def dropTableIfExists: Future[Unit] =
+	  db.run(addresses.schema.dropIfExists)
+	
+	
+	def insert(address: Address): DBIO[Option[String]] = {
 		(addresses += address).map(_ => address.id)
 	}
-
-  def insertAll(values: Seq[Address]): Future[Option[Int]] =
-    db.run(addresses ++= values.map(address => address.copy(id = address.id)))
-
-  def findById(id: String): Future[Option[Address]] =
-    db.run(addresses.filter(_.id === id).result.headOption)
-
-  def listAll: Future[Seq[Address]] =
-    db.run(addresses.sortBy(_.id.asc).result)
-
-  def update(id: String, address: Address): DBIO[Int] = {
-    val updatedAddress = address.copy(id = Some(id))
-    addresses.filter(_.id === id).update(updatedAddress)
-  }
-
-  def delete(id: String): Future[Int] =
-    db.run(addresses.filter(_.id === id).delete)
-
-  def deleteAll: Future[Int] =
-    db.run(addresses.delete)
-}
+	
+	def insertAll(values: Seq[Address]): Future[Option[Int]] =
+	  db.run(addresses ++= values.map(address => address.copy(id = address.id)))
+	
+	def findById(id: String): Future[Option[Address]] =
+	  db.run(addresses.filter(_.id === id).result.headOption)
+	
+	def listAll: Future[Seq[Address]] =
+	  db.run(addresses.sortBy(_.id.asc).result)
+	
+	def update(id: String, address: Address): DBIO[Int] = {
+	  val updatedAddress = address.copy(id = Some(id))
+	  addresses.filter(_.id === id).update(updatedAddress)
+	}
+	
+	def delete(id: String): Future[Int] =
+	  db.run(addresses.filter(_.id === id).delete)
+	
+	def deleteAll: Future[Int] =
+	  db.run(addresses.delete)
+	}
