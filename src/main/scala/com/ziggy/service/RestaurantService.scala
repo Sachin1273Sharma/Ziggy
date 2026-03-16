@@ -33,7 +33,7 @@ class RestaurantService @Inject()
 		dbService.addRestaurant(address,restaurant)
 	}
 
-	def updateRestaurant(data: UpdateRestaurant): Future[String] = {
+	def updateRestaurant(data: UpdateRestaurant): Future[Boolean] = {
 		dbService.findRestaurantWithAddressByRestaurantId(data.id).transformWith {
 			case Success(value) => value match {
 				case Some(restaurant, address) => {
@@ -47,11 +47,10 @@ class RestaurantService @Inject()
 						isOpen = data.isOpen.getOrElse(restaurant.isOpen),
 						pinCodes = data.pincodes.getOrElse(restaurant.pinCodes)
 						)
-					val newAddress    = data.address.getOrElse(address)
+					val newAddress = data.address.getOrElse(address)
 					dbService.updateRestaurantWithAddress(restaurant, address)
-					)
 				}
-				case None => Future.successful("Restaurant not found")
+				case None => Future.successful(false)
 			}
 			case Failure(ex) => Future.failed(ex)
 		}

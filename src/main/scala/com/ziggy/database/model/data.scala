@@ -23,7 +23,7 @@ final case class CustomerAddress(
 )
 
 final case class User(
-	id: Option[UUID] = None,
+	id: Option[String] = None,
 	name: Option[String] = None,
 	email: Option[String] = None,
 	passwordHash: Option[String] = None,
@@ -34,7 +34,8 @@ final case class User(
 	dateOfBirth: Option[String] = None,
 	notes: Option[String] = None,
 	createdAt: Option[Instant] = None,
-	updatedAt: Option[Instant] = None
+	updatedAt: Option[Instant] = None,
+	refId : Option[String] = None
 )
 
 final case class Partner(
@@ -151,8 +152,8 @@ final case class UpdateRestaurant(
 	pincodes: Option[List[String]] = None
 )
 
-enum UserType:
-	case CUSTOMER, DELIVERY_PARTNER, RESTAURANT_ADMIN, ZIGGY_CUSTOMER_SERVICE, ZIGGY_ADMIN_USER
+enum UserType :
+			case CUSTOMER,DELIVERY_PARTNER,RESTAURANT_ADMIN,ZIGGY_CUSTOMER_SERVICE,ZIGGY_ADMIN_USER
 
 
 

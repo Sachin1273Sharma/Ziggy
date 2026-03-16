@@ -33,13 +33,13 @@ class EventMapper @Inject()(kafkaService : KafkaService) {
 			 case KAFKA_EVENTS.UPDATE_RESTAURANT => kafkaService.updateRestaurant(data)
 		 }
 	}
-	def processPartnerMessages(event : KAFKA_EVENTS,data : KAFKA_DATA): Future[String] = {
+	def processPartnerMessages(event : KAFKA_EVENTS,data : KAFKA_DATA): Future[Boolean] = {
 		event match {
 			case KAFKA_EVENTS.ADD_PARTNER => kafkaService.addPartner(data)
 			case KAFKA_EVENTS.UPDATE_PARTNER => kafkaService.updatePartner(data)
 		}
-		Future.successful("")
 	}
+
 	def processCustomerMessages(event : KAFKA_EVENTS,data : KAFKA_DATA) = {
 		Future.successful("")
 	}

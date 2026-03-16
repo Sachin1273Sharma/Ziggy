@@ -1,6 +1,6 @@
 package com.ziggy.service
 
-import com.ziggy.database.model.{AddPartner, Partner, PartnerVehicle, UpdatePartner}
+import com.ziggy.database.model.{AddPartner, Partner, PartnerVehicle, UpdatePartner,User}
 import com.ziggy.utils.Logger
 
 import java.time.Instant
@@ -72,20 +72,37 @@ import scala.util.{Failure, Success}
 		dbService.addPartner(partner)
 	}
 
-	def updatePartner(data: UpdatePartner) = {
-		dbService.findUserById(data.id) map {
-			user => {
-				val partner = Partner(name = data.name.getOrElse(user.get.name.getOrElse("")), email =
-					data.email.getOrElse(user.get.email.getOrElse("")),
-				                      phoneNumber = data.phoneNumber.getOrElse(user.get.phoneNumber
-				                                                                   .getOrElse("")),
-				                      isAvailable
-				                      = data
-					                      .isAvailable.getOrElse(),
-				                      isOpenToService = data.isOpenToService, isEngagedInOrder = data
-						.isEngagedInOrder, pinCodes = data.pinCodes, vehicle = data.vehicle, currentOrderId =
-					                      data.currentOrderId)
-			}
+	def updatePartner(data: UpdatePartner): Future[Boolean] = {
+		dbService.findPartnerWithUserByRefId(data.id) flatMap { case Some(
+			partner,
+			user
+		) => {
+			val newPartner = Partner(
+				name = data.name.getOrElse(user.name.getOrElse("")),
+				email = data.email.getOrElse(user.email.getOrElse("")),
+				phoneNumber = data.phoneNumber.getOrElse(user.phoneNumber.getOrElse("")),
+				isAvailable = data.isAvailable.getOrElse(partner.isAvailable),
+				isOpenToService = data.isOpenToService.getOrElse(partner.isOpenToService),
+				isEngagedInOrder = data.isEngagedInOrder.getOrElse(partner.isEngagedInOrder),
+				pinCodes = data.pinCodes.getOrElse(partner.pinCodes),
+				vehicle = (PartnerVehicle.valueOf(data.vehicle.getOrElse(partner.vehicle.toString))),
+				currentOrderId = data.currentOrderId
+				)
+			val newUser = user.copy(
+				name = data.name.orElse(user.name),
+				email = data.email.orElse(user.email),
+				phoneNumber = data.phoneNumber.orElse(user.phoneNumber)
+				)
+
+			val result = dbService.updatePartnerWithUser(
+				partner.id.getOrElse(""),
+				user.id.getOrElse(""),
+				partner,
+				user
+				)
+			result
+		}
+		case _ => Future.failed(new Exception("Partner data not found"))
 		}
 	}
 

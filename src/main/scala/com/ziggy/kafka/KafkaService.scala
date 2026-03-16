@@ -27,19 +27,19 @@ class KafkaService @Inject()(restaurantService: RestaurantService, kafkaProducer
 		}
 	}
 
-	def addRestaurant(data: KAFKA_DATA):Future[String] = {
+	def addRestaurant(data: KAFKA_DATA):Future[Boolean] = {
 		val result = decode[AddRestaurant](data.value) map {
 			value => restaurantService.addRestaurant(value)
 		}
 		result match {
 			case Right(value) => value map {
-				x => x._2
+				x => true
 			}
 			case _ => Future.failed(new Exception("Failed to update"))
 		}
 	}
 
-	def updateRestaurant(data : KAFKA_DATA) : Future[String] = {
+	def updateRestaurant(data : KAFKA_DATA) : Future[Boolean] = {
 		val result = decode[UpdateRestaurant](data.value) map {
 			value => restaurantService.updateRestaurant(value)
 		}
@@ -49,19 +49,24 @@ class KafkaService @Inject()(restaurantService: RestaurantService, kafkaProducer
 		}
 	}
 
-	def addPartner(data : KAFKA_DATA): Future[String] = {
+	def addPartner(data : KAFKA_DATA): Future[Boolean] = {
 		val result = decode[AddPartner](data.value) map {
 			value => partnerService.addPartner(value)
 		}
 		result match {
-			case Right(value) => value
+			case Right(value) => Future.successful(true)
 			case _ => Future.failed(new Exception("Failed to Add"))
 		}
 	}
 
-	def updatePartner(data : KAFKA_DATA) = {
-		decode[UpdatePartner](data.value) map {
-			value => partnerService.updatePartner(data)
+	def updatePartner(data: KAFKA_DATA): Future[Boolean] = {
+		val result = decode[UpdatePartner](data.value) map
+		             {
+			             value => partnerService.updatePartner(value)
+		             }
+		result match {
+			case Left(exception: Exception) => Future.failed(exception)
+			case Right(value) => value
 		}
 	}
 

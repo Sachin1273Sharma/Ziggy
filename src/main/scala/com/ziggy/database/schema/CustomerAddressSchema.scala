@@ -14,7 +14,7 @@ class CustomerAddressSchema(tag: Tag) extends Table[CustomerAddress](tag, "custo
   def customerIdIndex = index("idx_customer_addresses_customer_id", customerId)
   def addressIdIndex = index("idx_customer_addresses_address_id", addressId)
 
-  def customerFk = foreignKey("fk_customer_addresses_customer_id", customerId, UserSchema.customers)(_.id)
+  def customerFk = foreignKey("fk_customer_addresses_customer_id", customerId, UserSchema.users)(_.id)
   def addressFk = foreignKey("fk_customer_addresses_address_id", addressId, AddressSchema.addresses)(_.id)
 
   def * = (

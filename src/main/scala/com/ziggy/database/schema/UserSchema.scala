@@ -7,7 +7,7 @@ import java.util.UUID
 import slick.jdbc.PostgresProfile.api.*
 
 class UserSchema(tag: Tag) extends Table[User](tag, "users") {
-  def id = column[UUID]("id", O.PrimaryKey)
+  def id = column[String]("id", O.PrimaryKey)
   def name = column[Option[String]]("name")
   def email = column[Option[String]]("email")
   def passwordHash = column[Option[String]]("password_hash")
@@ -18,6 +18,7 @@ class UserSchema(tag: Tag) extends Table[User](tag, "users") {
   def notes = column[Option[String]]("notes")
   def createdAt = column[Option[Instant]]("created_at")
   def updatedAt = column[Option[Instant]]("updated_at")
+	def refId = column[Option[String]]("ref_id")
 
   def emailIndex = index("idx_customers_email", email, unique = true)
 
@@ -32,10 +33,11 @@ class UserSchema(tag: Tag) extends Table[User](tag, "users") {
     dateOfBirth,
     notes,
     createdAt,
-    updatedAt
+    updatedAt,
+	  refId
   ).mapTo[User]
 }
 
 object UserSchema {
-  val customers = TableQuery[UserSchema]
+  val users = TableQuery[UserSchema]
 }

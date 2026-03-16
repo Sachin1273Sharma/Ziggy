@@ -18,7 +18,7 @@ final case class OrderRoutingContext(
 
 final class OrderTable(db: Database)(implicit ec: ExecutionContext) {
   private val orders = OrderSchema.orders
-  private val customers = UserSchema.customers
+  private val customers = UserSchema.users
   private val customerAddresses = CustomerAddressSchema.customerAddresses
   private val addresses = AddressSchema.addresses
   private val restaurants = ResturantScheme.restaurants
