@@ -1,73 +1,68 @@
 package com.ziggy.kafka
 
 import com.ziggy.api.JsonSupport
-import com.ziggy.database.model.{AddPartner, AddRestaurant, UpdatePartner, UpdateRestaurant}
+import com.ziggy.database.model.{AddItemEvent, AddPartner, AddRestaurant, UpdateItemEvent, UpdatePartner, UpdateRestaurant}
 import com.ziggy.service.{PartnerService, RestaurantService}
-import io.circe.Json
+import io.circe.generic.auto.*
+import io.circe.parser.decode
 
 import javax.inject.{Inject, Singleton}
-import io.circe.*
-import io.circe.parser.*
-import io.circe.generic.auto.*
-
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Success
 
 @Singleton
-class KafkaService @Inject()(restaurantService: RestaurantService, kafkaProducer: KafkaProducer,
-                             partnerService : PartnerService)
-                            (using ec : ExecutionContext)
-	extends
-	JsonSupport {
+class KafkaService @Inject()(
+  restaurantService: RestaurantService,
+  kafkaProducer: KafkaProducer,
+  partnerService: PartnerService
+)(using ec: ExecutionContext)
+    extends JsonSupport {
 
-	def publishEvent(topic: String, event: String, data: Option[String]): Unit = {
-		data match {
-			case Some(value) => kafkaProducer.send(topic, event, value)
-			case _ => kafkaProducer.send(topic, event, KAFKA_DATA.NOTHING.value)
-		}
-	}
+  def publishEvent(topic: String, event: String, data: Option[String]): Unit = {
+    data match {
+      case Some(value) => kafkaProducer.send(topic, event, value)
+      case None => kafkaProducer.send(topic, event, KAFKA_DATA.NOTHING.value)
+    }
+  }
 
-	def addRestaurant(data: KAFKA_DATA):Future[Boolean] = {
-		val result = decode[AddRestaurant](data.value) map {
-			value => restaurantService.addRestaurant(value)
-		}
-		result match {
-			case Right(value) => value map {
-				x => true
-			}
-			case _ => Future.failed(new Exception("Failed to update"))
-		}
-	}
+  def addRestaurant(data: KAFKA_DATA): Future[Boolean] = {
+    decode[AddRestaurant](data.value) match {
+      case Right(value) => restaurantService.addRestaurant(value).map(_ => true)
+      case Left(exception) => Future.failed(exception)
+    }
+  }
 
-	def updateRestaurant(data : KAFKA_DATA) : Future[Boolean] = {
-		val result = decode[UpdateRestaurant](data.value) map {
-			value => restaurantService.updateRestaurant(value)
-		}
-		result match {
-			case Right(value) => value
-			case _ => Future.failed(new Exception("Failed to update"))
-		}
-	}
+  def updateRestaurant(data: KAFKA_DATA): Future[Boolean] = {
+    decode[UpdateRestaurant](data.value) match {
+      case Right(value) => restaurantService.updateRestaurant(value)
+      case Left(exception) => Future.failed(exception)
+    }
+  }
 
-	def addPartner(data : KAFKA_DATA): Future[Boolean] = {
-		val result = decode[AddPartner](data.value) map {
-			value => partnerService.addPartner(value)
-		}
-		result match {
-			case Right(value) => Future.successful(true)
-			case _ => Future.failed(new Exception("Failed to Add"))
-		}
-	}
+  def addPartner(data: KAFKA_DATA): Future[Boolean] = {
+    decode[AddPartner](data.value) match {
+      case Right(value) => partnerService.addPartner(value).map(_ => true)
+      case Left(exception) => Future.failed(exception)
+    }
+  }
 
-	def updatePartner(data: KAFKA_DATA): Future[Boolean] = {
-		val result = decode[UpdatePartner](data.value) map
-		             {
-			             value => partnerService.updatePartner(value)
-		             }
-		result match {
-			case Left(exception: Exception) => Future.failed(exception)
-			case Right(value) => value
-		}
-	}
+  def updatePartner(data: KAFKA_DATA): Future[Boolean] = {
+    decode[UpdatePartner](data.value) match {
+      case Right(value) => partnerService.updatePartner(value)
+      case Left(exception) => Future.failed(exception)
+    }
+  }
 
+  def addItem(data: KAFKA_DATA): Future[Boolean] = {
+    decode[AddItemEvent](data.value) match {
+      case Right(value) => restaurantService.addItem(value).map(_ => true)
+      case Left(exception) => Future.failed(exception)
+    }
+  }
+
+  def updateItem(data: KAFKA_DATA): Future[Boolean] = {
+    decode[UpdateItemEvent](data.value) match {
+      case Right(value) => restaurantService.updateItem(value)
+      case Left(exception) => Future.failed(exception)
+    }
+  }
 }

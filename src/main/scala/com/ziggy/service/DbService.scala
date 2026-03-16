@@ -1,7 +1,7 @@
 package com.ziggy.service
 
-import com.ziggy.database.model.{Address, Order, Partner, Restaurant, User}
-import com.ziggy.database.table.{AddressTable, UserTable, OrderRoutingContext, OrderTable, PartnerTable, RestaurantTable}
+import com.ziggy.database.model.{Address, Item, Order, Partner, Restaurant, User}
+import com.ziggy.database.table.{AddressTable, ItemTable, UserTable, OrderRoutingContext, OrderTable, PartnerTable, RestaurantTable}
 import slick.dbio.DBIO
 import slick.jdbc.PostgresProfile.api.*
 
@@ -16,6 +16,7 @@ class DbService @Inject(
 	partnerTable: PartnerTable,
 	addressTable: AddressTable,
 	restaurantTable: RestaurantTable,
+	itemTable: ItemTable,
 	db: Database
 )(using ec: ExecutionContext) {
 
@@ -27,7 +28,7 @@ class DbService @Inject(
 		userTable.findById(id)
 	}
 
-	def register(data: User): Future[UUID] = {
+	def register(data: User): Future[String] = {
 		userTable.insert(data)
 	}
 
@@ -98,6 +99,18 @@ class DbService @Inject(
 	/*Restaurant */
 	def findRestaurantWithAddressByRestaurantId(restaurantId: String): Future[Option[(Restaurant, Address)]] = {
 		restaurantTable.findRestaurantWithAddress(restaurantId)
+	}
+
+	def addItem(item: Item): Future[String] = {
+		itemTable.insert(item)
+	}
+
+	def findItemByRestaurantIdAndItemId(restaurantId: String, itemId: String): Future[Option[Item]] = {
+		itemTable.findByRestaurantIdAndItemId(restaurantId, itemId)
+	}
+
+	def updateItem(itemId: String, item: Item): Future[Int] = {
+		itemTable.update(itemId, item)
 	}
 
 	/* Transactional Queries */

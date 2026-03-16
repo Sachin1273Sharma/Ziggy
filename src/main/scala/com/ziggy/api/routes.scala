@@ -5,7 +5,8 @@ import org.apache.pekko.http.scaladsl.server.Route
 import javax.inject.{Inject, Singleton}
 @Singleton
 class routes @Inject() (authRoutes : AuthRoutes,
-                        orderRoutes : OrderRoutes) extends JsonSupport
+                        orderRoutes : OrderRoutes,
+                        utilRoutes: UtilRoutes) extends JsonSupport
 {
   val routes: Route =
     pathPrefix("api"){
@@ -18,6 +19,9 @@ class routes @Inject() (authRoutes : AuthRoutes,
         },
         {
           orderRoutes.routes
+        },
+        {
+          utilRoutes.utilityRoutes
         }
       )
     }

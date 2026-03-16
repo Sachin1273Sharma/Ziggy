@@ -105,6 +105,35 @@ final case class Item(
 	updatedAt: Option[Timestamp] = None
 )
 
+final case class AddItem(
+	name: String,
+	price: Double,
+	rating: Double,
+	isAvailable: Boolean,
+	quick: Boolean = false,
+	quantityLeft: Int
+)
+
+final case class UpdateItem(
+	name: Option[String] = None,
+	price: Option[Double] = None,
+	rating: Option[Double] = None,
+	isAvailable: Option[Boolean] = None,
+	quick: Option[Boolean] = None,
+	quantityLeft: Option[Int] = None
+)
+
+final case class AddItemEvent(
+	restaurantId: String,
+	item: AddItem
+)
+
+final case class UpdateItemEvent(
+	restaurantId: String,
+	itemId: String,
+	item: UpdateItem
+)
+
 
 final case class OrderItem(
 	id: Option[String] = None,
